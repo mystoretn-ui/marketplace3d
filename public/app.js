@@ -16,24 +16,27 @@ async function loadModels() {
   const q = encodeURIComponent($("#search").value || "");
   const models = await api("/api/models?q=" + q);
 
-  $("#grid").innerHTML = models.length ? models.map(m => `
-    <article class="card" onclick="showModel('${m.id}')">
-      <div class="thumb">
-        ${m.imageUrl ? `<img src="${m.imageUrl}">` : "3D MODEL"}
-      </div>
-
-      <div class="cardBody">
-        <h3>${escapeHtml(m.title)}</h3>
-        <div class="muted">
-          ${escapeHtml(m.category)} • par ${escapeHtml(m.designerName)}
+  $("#grid").innerHTML = models.length
+    ? models.map(m => `
+      <article class="card" onclick="showModel('${m.id}')">
+        <div class="thumb">
+          ${m.imageUrl ? `<img src="${m.imageUrl}">` : "3D MODEL"}
         </div>
 
-        <div class="price">
-          ${m.price ? m.price.toFixed(2) + " $" : "Gratuit"}
+        <div class="cardBody">
+          <h3>${escapeHtml(m.title)}</h3>
+
+          <div class="muted">
+            ${escapeHtml(m.category)} • par ${escapeHtml(m.designerName)}
+          </div>
+
+          <div class="price">
+            ${m.price ? m.price.toFixed(2) + " $" : "Gratuit"}
+          </div>
         </div>
-      </div>
-    </article>
-  `).join("") : `<p class="muted">Aucun modèle pour le moment.</p>`;
+      </article>
+    `).join("")
+    : `<p class="muted">Aucun modèle pour le moment.</p>`;
 }
 
 function escapeHtml(s) {
@@ -69,7 +72,7 @@ async function showModel(id) {
     <br><br>
 
     <button class="btn" onclick="buy('${m.id}')">
-      ${m.price ? "Acheter" : "Télécharger"}
+      ${m.price > 0 ? "Acheter" : "Télécharger"}
     </button>
   `;
 
@@ -99,10 +102,12 @@ async function buy(id) {
 }
 
 function openLogin() {
+
   $("#modalContent").innerHTML = `
     <h2>Connexion</h2>
 
     <form onsubmit="login(event)">
+
       <input
         name="email"
         type="email"
@@ -120,6 +125,7 @@ function openLogin() {
       <button class="btn">
         Se connecter
       </button>
+
     </form>
 
     <p class="muted">
@@ -134,10 +140,12 @@ function openLogin() {
 }
 
 function openRegister() {
+
   $("#modalContent").innerHTML = `
     <h2>Créer un compte</h2>
 
     <form onsubmit="register(event)">
+
       <input
         name="name"
         placeholder="Nom / pseudo"
@@ -161,6 +169,7 @@ function openRegister() {
       <button class="btn">
         Créer mon compte
       </button>
+
     </form>
   `;
 
@@ -168,11 +177,13 @@ function openRegister() {
 }
 
 async function login(e) {
+
   e.preventDefault();
 
   const f = new FormData(e.target);
 
   try {
+
     const r = await api("/api/login", {
       method: "POST",
       headers: {
@@ -190,16 +201,20 @@ async function login(e) {
     alert("Connexion réussie.");
 
   } catch(x) {
+
     alert(x.message);
+
   }
 }
 
 async function register(e) {
+
   e.preventDefault();
 
   const f = new FormData(e.target);
 
   try {
+
     const r = await api("/api/register", {
       method: "POST",
       headers: {
@@ -217,17 +232,26 @@ async function register(e) {
     alert("Compte créé.");
 
   } catch(x) {
+
     alert(x.message);
+
   }
 }
 
+
+/* ================================
+   PUBLICATION D'UN MODÈLE
+================================ */
+
 function openUpload() {
+
   if (!token) {
     openLogin();
     return;
   }
 
   $("#modalContent").innerHTML = `
+
     <h2>Publier un modèle</h2>
 
     <form onsubmit="uploadModel(event)">
@@ -243,51 +267,85 @@ function openUpload() {
         placeholder="Description"
       ></textarea>
 
+
       <select name="category">
+
         <option>Decoration</option>
         <option>Mechanical</option>
         <option>Figurines</option>
         <option>Tools</option>
         <option>Vehicles</option>
         <option>Other</option>
+
       </select>
 
-      <label>Prix</label>
 
-      <div class="priceOptions">
+      <!-- PRIX -->
 
-        <label>
+      <div class="priceChoice">
+
+        <div class="fieldLabel">
+          Price (USD $)
+        </div>
+
+
+        <label
+          class="radioOption"
+          style="display:flex;align-items:center;gap:8px;margin:8px 0;cursor:pointer;"
+        >
+
           <input
             type="radio"
-            name="pricing"
+            name="listingType"
             value="paid"
-            checked
-            onchange="togglePriceMode()"
           >
-          Payant
+
+          <span>Paid</span>
+
         </label>
 
-        <label>
+
+        <label
+          class="radioOption"
+          style="display:flex;align-items:center;gap:8px;margin:8px 0;cursor:pointer;"
+        >
+
           <input
             type="radio"
-            name="pricing"
+            name="listingType"
             value="free"
-            onchange="togglePriceMode()"
+            checked
           >
-          Gratuit
+
+          <span>Free</span>
+
         </label>
 
       </div>
 
-      <input
-        id="priceInput"
-        name="price"
-        type="number"
-        min="0.01"
-        step="0.01"
-        placeholder="Prix en $"
-        value="1"
+
+      <!-- PRICE INPUT -->
+
+      <div
+        id="priceField"
+        class="priceField hidden"
       >
+
+        <label>
+          Price (USD $)
+        </label>
+
+        <input
+          id="priceInput"
+          name="price"
+          type="number"
+          min="0.01"
+          step="0.01"
+          placeholder="e.g. 5.00"
+        >
+
+      </div>
+
 
       <label>
         Fichier 3D (STL / 3MF / OBJ / ZIP)
@@ -300,13 +358,17 @@ function openUpload() {
         required
       >
 
-      <label>Image</label>
+
+      <label>
+        Image
+      </label>
 
       <input
         name="image"
         type="file"
         accept="image/*"
       >
+
 
       <button class="btn">
         Publier
@@ -315,32 +377,45 @@ function openUpload() {
     </form>
   `;
 
+
+  /* Gestion Paid / Free */
+
+  const priceField = $("#priceField");
+  const priceInput = $("#priceInput");
+
+  document
+    .querySelectorAll('input[name="listingType"]')
+    .forEach(radio => {
+
+      radio.addEventListener("change", () => {
+
+        const paid =
+          radio.value === "paid" &&
+          radio.checked;
+
+        priceField.classList.toggle(
+          "hidden",
+          !paid
+        );
+
+        priceInput.required = paid;
+
+        if (!paid) {
+          priceInput.value = "";
+        }
+
+      });
+
+    });
+
+
   $("#modal").classList.remove("hidden");
 }
 
-function togglePriceMode() {
 
-  const free =
-    document.querySelector(
-      'input[name="pricing"]:checked'
-    )?.value === "free";
-
-  const input = $("#priceInput");
-
-  if (!input) return;
-
-  input.disabled = free;
-
-  input.required = !free;
-
-  input.value = free
-    ? "0"
-    : (Number(input.value) > 0 ? input.value : "1");
-
-  input.placeholder = free
-    ? "Gratuit"
-    : "Prix en $";
-}
+/* ================================
+   UPLOAD
+================================ */
 
 async function uploadModel(e) {
 
@@ -348,7 +423,7 @@ async function uploadModel(e) {
 
   try {
 
-    const r = await api("/api/models", {
+    await api("/api/models", {
       method: "POST",
       body: new FormData(e.target)
     });
@@ -366,12 +441,30 @@ async function uploadModel(e) {
   }
 }
 
+
+/* ================================
+   MODAL
+================================ */
+
 function closeModal() {
   $("#modal").classList.add("hidden");
 }
 
+
+/* ================================
+   BUTTONS
+================================ */
+
 $("#loginBtn").onclick = openLogin;
 
-$("#search").addEventListener("input", loadModels);
+$("#search").addEventListener(
+  "input",
+  loadModels
+);
+
+
+/* ================================
+   START
+================================ */
 
 loadModels();
