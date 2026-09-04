@@ -6,7 +6,7 @@
 
   <title>Marketplace3D</title>
 
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -14,55 +14,44 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
 
-    <div class="logo">
-      MARKETPLACE<span>3D</span>
+    <div class="brand">
+      <div class="brandIcon">▣</div>
+      <span>MARKETPLACE<span>3D</span></span>
     </div>
 
-    <nav class="sideNav">
+    <nav>
 
-      <a href="#home" class="active">
+      <a class="active" href="#">
         <span>⌂</span>
         Home
       </a>
 
       <a href="#models">
-        <span>◆</span>
+        <span>◈</span>
         All Models
       </a>
 
-      <a href="#categories">
-        <span>▦</span>
-        Categories
-      </a>
-
-      <a href="#designers">
+      <a href="#">
         <span>♙</span>
-        Designers
+        Subscriptions
       </a>
-
-      <a href="#trending">
-        <span>◈</span>
-        Trending
-      </a>
-
-      <a href="#new">
-        <span>✦</span>
-        New Models
-      </a>
-
-    </nav>
-
-
-    <div class="navTitle">
-      YOUR SPACE
-    </div>
-
-    <nav class="sideNav">
 
       <a href="#">
-        <span>♡</span>
-        Favorites
+        <span>◉</span>
+        MakerLab
       </a>
+
+      <a href="#">
+        <span>🏆</span>
+        Contests
+      </a>
+
+      <a href="#">
+        <span>▣</span>
+        Participations
+      </a>
+
+      <div class="navTitle">YOU</div>
 
       <a href="#">
         <span>◷</span>
@@ -70,47 +59,40 @@
       </a>
 
       <a href="#">
-        <span>↓</span>
-        Downloads
+        <span>▱</span>
+        Collections
+      </a>
+
+      <div class="navTitle">EXPLORE</div>
+
+      <a href="#">
+        <span>▢</span>
+        Maker Supplies
+      </a>
+
+      <a href="#">
+        <span>◆</span>
+        CyberBrick
       </a>
 
     </nav>
 
-
-    <div class="navTitle">
-      FOR DESIGNERS
-    </div>
-
-    <nav class="sideNav">
-
-      <a href="#" onclick="openUpload(); return false;">
-        <span>＋</span>
-        Upload Model
-      </a>
-
-    </nav>
-
-
-    <div class="sidebarBottom">
-
-      <button
-        id="loginBtn"
-        class="loginBtn"
-      >
-        Login
-      </button>
-
-    </div>
+    <button id="loginBtn" class="sideLogin">
+      Login
+    </button>
 
   </aside>
 
 
   <!-- MAIN -->
-  <div class="main">
+  <main class="main">
 
-
-    <!-- TOP BAR -->
+    <!-- TOPBAR -->
     <header class="topbar">
+
+      <button class="mobileMenu" id="mobileMenu">
+        ☰
+      </button>
 
       <div class="mobileLogo">
         MARKETPLACE<span>3D</span>
@@ -121,19 +103,23 @@
         <span>⌕</span>
 
         <input
-          id="search"
+          id="searchInput"
           type="search"
           placeholder="Search models, creators, categories..."
         >
 
       </div>
 
+      <button class="uploadBtn" onclick="openUpload()">
+        + Upload
+      </button>
 
-      <button
-        class="uploadTop"
-        onclick="openUpload()"
-      >
-        ＋ Upload
+      <button class="topIcon">
+        🛒
+      </button>
+
+      <button class="avatar">
+        👤
       </button>
 
     </header>
@@ -142,348 +128,190 @@
     <!-- CATEGORY BAR -->
     <div class="categoryBar">
 
-      <a
-        href="#models"
-        class="categoryActive"
-      >
-        All
-      </a>
+      <button class="category active" data-category="all">
+        For You
+      </button>
 
-      <a href="#models">
-        Toys & Games
-      </a>
+      <button class="category" data-category="trending">
+        Trending
+      </button>
 
-      <a href="#models">
+      <button class="category" data-category="home">
         Home & Decor
-      </a>
+      </button>
 
-      <a href="#models">
-        Tools & Parts
-      </a>
+      <button class="category" data-category="toys">
+        Toys & Games
+      </button>
 
-      <a href="#models">
-        Art & Design
-      </a>
+      <button class="category" data-category="tools">
+        Tools
+      </button>
 
-      <a href="#models">
-        Vehicles
-      </a>
+      <button class="category" data-category="hobby">
+        Hobby & DIY
+      </button>
 
-      <a href="#models">
-        Characters
-      </a>
+      <button class="category" data-category="printer">
+        3D Printer
+      </button>
+
+      <button class="category" data-category="art">
+        Art
+      </button>
+
+      <button class="category" data-category="miniatures">
+        Miniatures
+      </button>
+
+      <button class="category" data-category="decor">
+        Decor
+      </button>
 
     </div>
 
 
-    <main>
+    <!-- CONTENT -->
+    <section class="content">
 
+      <!-- FEATURED -->
+      <div class="featuredGrid">
 
-      <!-- HERO -->
-      <section
-        id="home"
-        class="hero"
-      >
+        <div class="featuredCard">
 
-        <div class="heroText">
+          <img
+            src="https://images.unsplash.com/photo-1601814933824-fd0b574dd592?auto=format&fit=crop&w=1200&q=80"
+            alt="Featured model"
+          >
 
-          <p class="eyebrow">
-            3D PRINT • CREATE • SHARE
-          </p>
+          <div class="featuredOverlay">
 
-          <h1>
-            Discover something<br>
-            worth printing.
-          </h1>
-
-          <p>
-            Explore amazing 3D printable models
-            from creators around the world.
-          </p>
-
-
-          <div class="heroButtons">
-
-            <a
-              href="#models"
-              class="primaryBtn"
-            >
-              Explore Models
-            </a>
-
-            <a
-              href="#designers"
-              class="secondaryBtn"
-            >
-              Become a Designer
-            </a>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- CATEGORIES -->
-      <section
-        id="categories"
-        class="contentSection"
-      >
-
-        <div class="sectionTitle">
-
-          <div>
-
-            <span>
-              EXPLORE
+            <span class="featuredTag">
+              FEATURED
             </span>
 
-            <h2>
-              Popular Categories
-            </h2>
+            <h1>
+              Illusion & Hope
+            </h1>
+
+            <p>
+              Beautiful creative 3D printable design
+            </p>
 
           </div>
 
-          <a href="#models">
-            View all →
-          </a>
-
         </div>
 
 
-        <div class="categoryCards">
+        <div class="smallFeatured">
 
+          <article class="miniCard">
 
-          <a
-            href="#models"
-            class="categoryCard"
-          >
+            <img
+              src="https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=700&q=80"
+            >
 
-            <div class="categoryIcon">
-              🧸
+            <div class="miniInfo">
+              <strong>
+                Mini Figure
+              </strong>
+
+              <span>
+                6.6k downloads
+              </span>
             </div>
 
-            <strong>
-              Toys & Games
-            </strong>
-
-            <small>
-              Fun & collectibles
-            </small>
-
-          </a>
+          </article>
 
 
-          <a
-            href="#models"
-            class="categoryCard"
-          >
+          <article class="miniCard">
 
-            <div class="categoryIcon">
-              🏠
+            <img
+              src="https://images.unsplash.com/photo-1535378917042-10a22c95931a?auto=format&fit=crop&w=700&q=80"
+            >
+
+            <div class="miniInfo">
+              <strong>
+                Create your own figure
+              </strong>
+
+              <span>
+                3D printable
+              </span>
             </div>
 
-            <strong>
-              Home & Decor
-            </strong>
-
-            <small>
-              Make your space unique
-            </small>
-
-          </a>
-
-
-          <a
-            href="#models"
-            class="categoryCard"
-          >
-
-            <div class="categoryIcon">
-              ⚙️
-            </div>
-
-            <strong>
-              Tools & Parts
-            </strong>
-
-            <small>
-              Useful everyday models
-            </small>
-
-          </a>
-
-
-          <a
-            href="#models"
-            class="categoryCard"
-          >
-
-            <div class="categoryIcon">
-              🎨
-            </div>
-
-            <strong>
-              Art & Design
-            </strong>
-
-            <small>
-              Creative 3D models
-            </small>
-
-          </a>
-
-
-          <a
-            href="#models"
-            class="categoryCard"
-          >
-
-            <div class="categoryIcon">
-              🚗
-            </div>
-
-            <strong>
-              Vehicles
-            </strong>
-
-            <small>
-              Cars and machines
-            </small>
-
-          </a>
-
-
-          <a
-            href="#models"
-            class="categoryCard"
-          >
-
-            <div class="categoryIcon">
-              🤖
-            </div>
-
-            <strong>
-              Characters
-            </strong>
-
-            <small>
-              Figures & collectibles
-            </small>
-
-          </a>
-
+          </article>
 
         </div>
 
-      </section>
+      </div>
 
 
       <!-- MODELS -->
-      <section
-        id="models"
-        class="contentSection"
-      >
+      <section id="models">
 
-        <div class="modelsHeader">
+        <div class="sectionHeader">
 
           <div>
-
-            <span>
-              DISCOVER
-            </span>
-
-            <h2>
-              Featured 3D Models
-            </h2>
-
+            <small>DISCOVER</small>
+            <h2>Featured 3D Models</h2>
           </div>
 
-
-          <div class="modelTabs">
-
-            <button class="active">
-              For You
-            </button>
-
-            <button>
-              Trending
-            </button>
-
-            <button>
-              New
-            </button>
-
-            <button>
-              Popular
-            </button>
-
-          </div>
-
-        </div>
-
-
-        <div
-          id="grid"
-          class="modelGrid"
-        ></div>
-
-      </section>
-
-
-      <!-- DESIGNERS -->
-      <section
-        id="designers"
-        class="designerSection"
-      >
-
-        <div>
-
-          <p class="eyebrow">
-            FOR DESIGNERS
-          </p>
-
-          <h2>
-            Share your designs.<br>
-            Build your audience.
-          </h2>
-
-          <p>
-            Upload your STL, 3MF or OBJ files and
-            share your creations with the 3D printing
-            community.
-          </p>
-
-          <button
-            class="primaryBtn"
-            onclick="openUpload()"
-          >
-            Upload a 3D Model
+          <button class="viewAll">
+            View all →
           </button>
 
         </div>
 
 
-        <div class="designerGraphic">
-
-          <div class="cube">
-            ◇
-          </div>
-
+        <div id="modelGrid" class="modelGrid">
         </div>
 
       </section>
 
-    </main>
+    </section>
+
+
+    <!-- UPLOAD SECTION -->
+    <section class="creatorSection">
+
+      <div>
+
+        <small>FOR DESIGNERS</small>
+
+        <h2>
+          Share your designs.
+          <br>
+          Build your audience.
+        </h2>
+
+        <p>
+          Upload your STL, 3MF or OBJ files and share
+          your creations with the 3D printing community.
+        </p>
+
+        <button
+          class="uploadBig"
+          onclick="openUpload()"
+        >
+          Upload a 3D Model
+        </button>
+
+      </div>
+
+      <div class="creatorGraphic">
+        <div>3D</div>
+      </div>
+
+    </section>
 
 
     <!-- FOOTER -->
     <footer>
 
-      <div class="footerLogo">
+      <strong>
         MARKETPLACE<span>3D</span>
-      </div>
+      </strong>
 
       <p>
         The community marketplace for 3D printable models.
@@ -491,14 +319,11 @@
 
     </footer>
 
-  </div>
+  </main>
 
 
-  <!-- MODAL -->
-  <div
-    id="modal"
-    class="modal hidden"
-  >
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="modal hidden">
 
     <div class="modalBox">
 
@@ -509,14 +334,81 @@
         ×
       </button>
 
-      <div id="modalContent"></div>
+      <h2>Login</h2>
+
+      <input
+        type="email"
+        placeholder="Email"
+      >
+
+      <input
+        type="password"
+        placeholder="Password"
+      >
+
+      <button class="modalBtn">
+        Login
+      </button>
 
     </div>
 
   </div>
 
 
-  <script src="/app.js"></script>
+  <!-- UPLOAD MODAL -->
+  <div id="uploadModal" class="modal hidden">
+
+    <div class="modalBox">
+
+      <button
+        class="close"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
+      <h2>Upload 3D Model</h2>
+
+      <label>
+        Model name
+      </label>
+
+      <input
+        type="text"
+        placeholder="My 3D Model"
+      >
+
+      <label>
+        Category
+      </label>
+
+      <select>
+        <option>Home & Decor</option>
+        <option>Toys & Games</option>
+        <option>Tools</option>
+        <option>Vehicles</option>
+        <option>Art</option>
+      </select>
+
+      <label>
+        STL / 3MF / OBJ
+      </label>
+
+      <input
+        type="file"
+        accept=".stl,.3mf,.obj"
+      >
+
+      <button class="modalBtn">
+        Upload Model
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <script src="app.js"></script>
 
 </body>
 </html>
