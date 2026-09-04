@@ -1,11 +1,463 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Marketplace3D</title>
-  <meta name="description" content="Discover and share 3D printable models.">
-  <link rel="stylesheet" href="/style.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Inter, Arial, sans-serif;
+      background: #f6f7f9;
+      color: #20242b;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* =========================
+       APP
+    ========================= */
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* =========================
+       SIDEBAR
+    ========================= */
+
+    .sidebar {
+      width: 225px;
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+    }
+
+    .logo {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .logo span {
+      color: #19a9e8;
+      margin-left: 2px;
+    }
+
+    .side-section {
+      padding: 5px 12px;
+    }
+
+    .side-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 42px;
+      padding: 0 12px;
+      border-radius: 8px;
+      color: #59616d;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 3px;
+      cursor: pointer;
+    }
+
+    .side-link:hover {
+      background: #f1f5f8;
+      color: #111827;
+    }
+
+    .side-link.active {
+      background: #eaf6fc;
+      color: #129bd5;
+      font-weight: 700;
+    }
+
+    .side-link .icon {
+      width: 20px;
+      text-align: center;
+      font-size: 17px;
+    }
+
+    .side-title {
+      padding: 22px 24px 8px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #9aa1aa;
+      letter-spacing: 1.4px;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 15px;
+      border-top: 1px solid #eee;
+    }
+
+    .loginSide {
+      width: 100%;
+      border: 0;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+      padding: 10px 12px;
+      color: #555d68;
+      font-size: 14px;
+    }
+
+    /* =========================
+       MAIN
+    ========================= */
+
+    .main {
+      margin-left: 225px;
+      width: calc(100% - 225px);
+      min-height: 100vh;
+    }
+
+    /* =========================
+       TOPBAR
+    ========================= */
+
+    .topbar {
+      height: 72px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 25px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .searchBox {
+      height: 42px;
+      max-width: 600px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f4f6f8;
+      border: 1px solid #e1e5e9;
+      border-radius: 9px;
+      padding: 0 14px;
+    }
+
+    .searchBox span {
+      color: #7c8590;
+      font-size: 20px;
+    }
+
+    #search {
+      border: 0;
+      outline: 0;
+      background: transparent;
+      width: 100%;
+      color: #222;
+      font-size: 14px;
+    }
+
+    #search::placeholder {
+      color: #969daa;
+    }
+
+    .top-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .upload-btn {
+      border: 0;
+      background: #129bd5;
+      color: white;
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* =========================
+       CONTENT
+    ========================= */
+
+    .content {
+      padding: 28px;
+    }
+
+    /* =========================
+       HERO
+    ========================= */
+
+    .hero {
+      min-height: 235px;
+      border-radius: 14px;
+      padding: 42px 38px;
+      color: white;
+
+      background:
+        radial-gradient(
+          circle at 85% 30%,
+          rgba(255,255,255,.18),
+          transparent 30%
+        ),
+        linear-gradient(
+          115deg,
+          #1267d5,
+          #087fdc 55%,
+          #159fe9
+        );
+
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      right: -80px;
+      top: -120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      filter: blur(5px);
+    }
+
+    .hero-small {
+      position: relative;
+      z-index: 2;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 {
+      position: relative;
+      z-index: 2;
+      font-size: 38px;
+      line-height: 1.05;
+      max-width: 550px;
+      margin-bottom: 14px;
+    }
+
+    .hero p {
+      position: relative;
+      z-index: 2;
+      font-size: 14px;
+      color: #e9f5ff;
+      max-width: 600px;
+      margin-bottom: 22px;
+    }
+
+    .hero-buttons {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 0;
+    }
+
+    .btn-primary {
+      background: #25aeea;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #59616d;
+    }
+
+    /* =========================
+       SECTION
+    ========================= */
+
+    .section {
+      margin-top: 28px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.4px;
+      color: #8c949e;
+      margin-bottom: 3px;
+    }
+
+    .section h2 {
+      font-size: 22px;
+      font-weight: 750;
+    }
+
+    .view-all {
+      font-size: 12px;
+      color: #777f89;
+      cursor: pointer;
+    }
+
+    /* =========================
+       CATEGORIES
+    ========================= */
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+    }
+
+    .category {
+      background: white;
+      border: 1px solid #e9ebee;
+      border-radius: 10px;
+      padding: 20px 16px;
+      min-height: 125px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .category:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 18px rgba(0,0,0,.06);
+    }
+
+    .category-icon {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .category h3 {
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .category p {
+      font-size: 10px;
+      color: #9299a2;
+      line-height: 1.4;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media (max-width: 1100px) {
+      .categories {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 750px) {
+      .sidebar {
+        width: 70px;
+      }
+
+      .logo {
+        padding: 0;
+        justify-content: center;
+        font-size: 0;
+      }
+
+      .logo span {
+        font-size: 16px;
+      }
+
+      .side-link {
+        justify-content: center;
+        padding: 0;
+      }
+
+      .side-link span:not(.icon) {
+        display: none;
+      }
+
+      .side-title {
+        display: none;
+      }
+
+      .main {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+      }
+
+      .content {
+        padding: 18px;
+      }
+
+      .hero h1 {
+        font-size: 30px;
+      }
+
+      .categories {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .topbar {
+        padding: 0 12px;
+      }
+
+      .upload-btn {
+        display: none;
+      }
+
+      .hero {
+        padding: 30px 24px;
+      }
+
+      .hero h1 {
+        font-size: 27px;
+      }
+
+      .categories {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -15,78 +467,82 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
 
-      <a class="logo" href="/">
+      <div class="logo">
         MARKETPLACE<span>3D</span>
-      </a>
+      </div>
 
-      <div class="sideSection">
+      <div class="side-section">
 
-        <a class="sideLink active" href="/">
-          <span>⌂</span>
-          Home
+        <a class="side-link active" href="#">
+          <span class="icon">⌂</span>
+          <span>Home</span>
         </a>
 
-        <a class="sideLink" href="#models">
-          <span>◈</span>
-          All Models
+        <a class="side-link" href="#">
+          <span class="icon">◆</span>
+          <span>All Models</span>
         </a>
 
-        <a class="sideLink" href="#categories">
-          <span>▦</span>
-          Categories
+        <a class="side-link" href="#">
+          <span class="icon">▦</span>
+          <span>Categories</span>
         </a>
 
-        <a class="sideLink" href="#designers">
-          <span>♙</span>
-          Designers
+        <a class="side-link" href="#">
+          <span class="icon">♙</span>
+          <span>Designers</span>
         </a>
 
-        <a class="sideLink" href="#models">
-          <span>🔥</span>
-          Trending
+        <a class="side-link" href="#">
+          <span class="icon">♢</span>
+          <span>Trending</span>
         </a>
 
-        <a class="sideLink" href="#models">
-          <span>✦</span>
-          New Models
+        <a class="side-link" href="#">
+          <span class="icon">✦</span>
+          <span>New Models</span>
         </a>
 
       </div>
 
-      <div class="sideTitle">YOUR SPACE</div>
+      <div class="side-title">
+        YOUR SPACE
+      </div>
 
-      <div class="sideSection">
+      <div class="side-section">
 
-        <a class="sideLink" href="#">
-          <span>♡</span>
-          Favorites
+        <a class="side-link" href="#">
+          <span class="icon">♡</span>
+          <span>Favorites</span>
         </a>
 
-        <a class="sideLink" href="#">
-          <span>◷</span>
-          History
+        <a class="side-link" href="#">
+          <span class="icon">◷</span>
+          <span>History</span>
         </a>
 
-        <a class="sideLink" href="#">
-          <span>⇩</span>
-          Downloads
+        <a class="side-link" href="#">
+          <span class="icon">⇩</span>
+          <span>Downloads</span>
         </a>
 
       </div>
 
-      <div class="sideTitle">FOR DESIGNERS</div>
+      <div class="side-title">
+        FOR DESIGNERS
+      </div>
 
-      <div class="sideSection">
+      <div class="side-section">
 
-        <a class="sideLink" href="#sell" onclick="openUpload()">
-          <span>＋</span>
-          Upload Model
+        <a class="side-link" href="#">
+          <span class="icon">＋</span>
+          <span>Upload Model</span>
         </a>
 
       </div>
 
-      <div class="sidebarBottom">
-        <button id="loginBtn" class="loginSide">
+      <div class="sidebar-bottom">
+        <button class="loginSide">
           Login
         </button>
       </div>
@@ -95,205 +551,130 @@
 
 
     <!-- MAIN -->
-    <div class="main">
+    <main class="main">
 
       <!-- TOPBAR -->
       <header class="topbar">
 
-        <div class="mobileLogo">
-          MARKETPLACE<span>3D</span>
-        </div>
-
         <div class="searchBox">
-
           <span>⌕</span>
-
           <input
             id="search"
-            type="search"
+            type="text"
             placeholder="Search models, creators, categories..."
           >
-
         </div>
 
-        <button class="uploadBtn" onclick="openUpload()">
-          + Upload
-        </button>
+        <div class="top-actions">
+          <button class="upload-btn">
+            + Upload
+          </button>
+        </div>
 
       </header>
 
 
       <!-- CONTENT -->
-      <main class="content">
-
+      <div class="content">
 
         <!-- HERO -->
         <section class="hero">
 
-          <div class="heroContent">
+          <div class="hero-small">
+            3D PRINT • CREATE • SHARE
+          </div>
 
-            <div class="eyebrow">
-              3D PRINT • CREATE • SHARE
-            </div>
+          <h1>
+            Discover something<br>
+            worth printing.
+          </h1>
 
-            <h1>
-              Discover something<br>
-              worth printing.
-            </h1>
+          <p>
+            Explore amazing 3D printable models from creators around the world.
+          </p>
 
-            <p>
-              Explore amazing 3D printable models from creators
-              around the world.
-            </p>
+          <div class="hero-buttons">
+            <button class="btn-primary">
+              Explore Models
+            </button>
 
-            <div class="heroButtons">
-
-              <a class="primaryBtn" href="#models">
-                Explore Models
-              </a>
-
-              <a class="secondaryBtn" href="#sell">
-                Become a Designer
-              </a>
-
-            </div>
-
+            <button class="btn-secondary">
+              Become a Designer
+            </button>
           </div>
 
         </section>
 
 
-        <!-- CATEGORIES -->
-        <section id="categories" class="section">
+        <!-- POPULAR CATEGORIES -->
+        <section class="section">
 
-          <div class="sectionHead">
+          <div class="section-header">
 
             <div>
-              <div class="eyebrow">EXPLORE</div>
-              <h2>Popular Categories</h2>
+              <div class="section-label">
+                EXPLORE
+              </div>
+
+              <h2>
+                Popular Categories
+              </h2>
             </div>
 
-            <a href="#models" class="viewAll">
+            <div class="view-all">
               View all →
-            </a>
+            </div>
 
           </div>
 
 
           <div class="categories">
 
-            <a href="#models" class="categoryCard">
-              <div class="categoryIcon">🧸</div>
-              <strong>Toys & Games</strong>
-              <small>Fun printable models</small>
-            </a>
-
-            <a href="#models" class="categoryCard">
-              <div class="categoryIcon">🏠</div>
-              <strong>Home & Decor</strong>
-              <small>Make your space unique</small>
-            </a>
-
-            <a href="#models" class="categoryCard">
-              <div class="categoryIcon">⚙️</div>
-              <strong>Tools & Parts</strong>
-              <small>Useful everyday models</small>
-            </a>
-
-            <a href="#models" class="categoryCard">
-              <div class="categoryIcon">🎨</div>
-              <strong>Art & Design</strong>
-              <small>Creative 3D models</small>
-            </a>
-
-            <a href="#models" class="categoryCard">
-              <div class="categoryIcon">🚗</div>
-              <strong>Vehicles</strong>
-              <small>Cars and machines</small>
-            </a>
-
-            <a href="#models" class="categoryCard">
-              <div class="categoryIcon">🤖</div>
-              <strong>Characters</strong>
-              <small>Figures and collectibles</small>
-            </a>
-
-          </div>
-
-        </section>
-
-
-        <!-- MODELS -->
-        <section id="models" class="section modelsSection">
-
-          <div class="sectionHead">
-
-            <div>
-              <div class="eyebrow">DISCOVER</div>
-              <h2>Featured 3D Models</h2>
+            <div class="category">
+              <div class="category-icon">🧸</div>
+              <h3>Toys & Games</h3>
+              <p>Fun printable models</p>
             </div>
 
-            <a href="#models" class="viewAll">
-              View all →
-            </a>
-
-          </div>
-
-          <div id="grid" class="grid"></div>
-
-        </section>
-
-
-        <!-- DESIGNERS -->
-        <section id="designers" class="designerBanner">
-
-          <div>
-
-            <div class="eyebrow">
-              FOR DESIGNERS
+            <div class="category">
+              <div class="category-icon">⌂</div>
+              <h3>Home & Decor</h3>
+              <p>Make your space unique</p>
             </div>
 
-            <h2>
-              Turn your 3D designs into income.
-            </h2>
+            <div class="category">
+              <div class="category-icon">⚙</div>
+              <h3>Tools & Parts</h3>
+              <p>Useful everyday models</p>
+            </div>
 
-            <p>
-              Upload your STL, 3MF or OBJ models and
-              share your creations with the community.
-            </p>
+            <div class="category">
+              <div class="category-icon">🎨</div>
+              <h3>Art & Design</h3>
+              <p>Creative 3D models</p>
+            </div>
 
-            <button class="primaryBtn" onclick="openUpload()">
-              Upload a 3D Model
-            </button>
+            <div class="category">
+              <div class="category-icon">🚗</div>
+              <h3>Vehicles</h3>
+              <p>Cars and machines</p>
+            </div>
+
+            <div class="category">
+              <div class="category-icon">♛</div>
+              <h3>Characters</h3>
+              <p>Figures and collectibles</p>
+            </div>
 
           </div>
 
         </section>
 
-      </main>
+      </div>
 
-    </div>
-
-  </div>
-
-
-  <!-- MODAL -->
-  <div id="modal" class="modal hidden">
-
-    <div class="modalBox">
-
-      <button class="close" onclick="closeModal()">
-        ×
-      </button>
-
-      <div id="modalContent"></div>
-
-    </div>
+    </main>
 
   </div>
-
-
-  <script src="/app.js"></script>
 
 </body>
 </html>
