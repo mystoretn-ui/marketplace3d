@@ -1,307 +1,275 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>Marketplace 3D</title>
-  <meta
-    name="description"
-    content="Discover, download and share 3D printable models."
-  >
-
-  <link rel="stylesheet" href="/style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marketplace 3D</title>
+<link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
 
-  <!-- HEADER -->
-  <header class="topbar">
+<aside class="sidebar">
 
-    <div class="headerLeft">
+  <a class="logo" href="/">
+    MARKETPLACE<span>3D</span>
+  </a>
 
-      <a class="logo" href="/">
-        MARKETPLACE<span>3D</span>
+  <nav class="sideNav">
+    <a class="active" href="#home"><span>⌂</span>Home</a>
+    <a href="#models"><span>◆</span>All Models</a>
+    <a href="#categories"><span>▦</span>Categories</a>
+    <a href="#designers"><span>♙</span>Designers</a>
+    <a href="#trending"><span>◈</span>Trending</a>
+    <a href="#new"><span>✦</span>New Models</a>
+  </nav>
+
+  <div class="navTitle">YOUR SPACE</div>
+
+  <nav class="sideNav">
+    <a href="#favorites"><span>♡</span>Favorites</a>
+    <a href="#history"><span>◷</span>History</a>
+    <a href="#downloads"><span>↓</span>Downloads</a>
+  </nav>
+
+  <div class="navTitle">FOR DESIGNERS</div>
+
+  <nav class="sideNav">
+    <a href="#sell" onclick="openUpload();return false">
+      <span>＋</span>Upload Model
+    </a>
+  </nav>
+
+  <div class="sidebarBottom">
+    <button id="loginBtn" class="loginBtn">
+      Login
+    </button>
+  </div>
+
+</aside>
+
+
+<div class="main">
+
+<header class="topbar">
+
+  <div class="mobileLogo">
+    MARKETPLACE<span>3D</span>
+  </div>
+
+  <div class="searchBox">
+    <span>⌕</span>
+    <input
+      id="search"
+      type="search"
+      placeholder="Search models, creators, categories..."
+    >
+  </div>
+
+  <button class="uploadTop" onclick="openUpload()">
+    ＋ Upload
+  </button>
+
+</header>
+
+
+<div class="categoryBar">
+
+  <a class="categoryActive" href="#models">All</a>
+  <a href="#categories">Toys & Games</a>
+  <a href="#categories">Home & Decor</a>
+  <a href="#categories">Tools & Parts</a>
+  <a href="#categories">Art & Design</a>
+  <a href="#categories">Vehicles</a>
+  <a href="#categories">Characters</a>
+
+</div>
+
+
+<main id="home">
+
+<section class="hero">
+
+  <div class="heroText">
+
+    <p class="eyebrow">
+      3D PRINT • CREATE • SHARE
+    </p>
+
+    <h1>
+      Discover something<br>
+      worth printing.
+    </h1>
+
+    <p>
+      Explore amazing 3D printable models from creators around the world.
+    </p>
+
+    <div class="heroButtons">
+
+      <a class="primaryBtn" href="#models">
+        Explore Models
       </a>
 
-      <nav class="mainNav">
-        <a href="#models">Explore</a>
-        <a href="#categories">Categories</a>
-        <a href="#sell">Sell</a>
-      </nav>
-
-    </div>
-
-    <div class="headerRight">
-
-      <button class="iconBtn" title="Search">
-        🔍
-      </button>
-
-      <button id="loginBtn" class="loginBtn">
-        Login
-      </button>
-
-    </div>
-
-  </header>
-
-
-  <main>
-
-    <!-- SEARCH / HERO -->
-    <section class="homeHero">
-
-      <div class="heroContent">
-
-        <p class="eyebrow">
-          3D PRINT • CREATE • SHARE
-        </p>
-
-        <h1>
-          Discover something<br>
-          amazing to print.
-        </h1>
-
-        <p class="heroText">
-          Explore thousands of 3D printable models from creators
-          around the world.
-        </p>
-
-        <div class="bigSearch">
-
-          <span>🔍</span>
-
-          <input
-            id="search"
-            type="search"
-            placeholder="Search models, creators, categories..."
-          >
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- CATEGORIES -->
-    <section id="categories" class="section">
-
-      <div class="sectionTitle">
-
-        <div>
-          <p class="eyebrow">EXPLORE</p>
-          <h2>Popular Categories</h2>
-        </div>
-
-      </div>
-
-
-      <div class="categoryGrid">
-
-        <a href="#models" class="categoryCard">
-          <div class="categoryIcon">🧸</div>
-          <div>
-            <strong>Toys & Games</strong>
-            <span>Fun & collectibles</span>
-          </div>
-        </a>
-
-
-        <a href="#models" class="categoryCard">
-          <div class="categoryIcon">🏠</div>
-          <div>
-            <strong>Home & Decor</strong>
-            <span>Make your space unique</span>
-          </div>
-        </a>
-
-
-        <a href="#models" class="categoryCard">
-          <div class="categoryIcon">⚙️</div>
-          <div>
-            <strong>Tools & Parts</strong>
-            <span>Useful everyday models</span>
-          </div>
-        </a>
-
-
-        <a href="#models" class="categoryCard">
-          <div class="categoryIcon">🎨</div>
-          <div>
-            <strong>Art & Design</strong>
-            <span>Creative models</span>
-          </div>
-        </a>
-
-
-        <a href="#models" class="categoryCard">
-          <div class="categoryIcon">🚗</div>
-          <div>
-            <strong>Vehicles</strong>
-            <span>Cars & machines</span>
-          </div>
-        </a>
-
-
-        <a href="#models" class="categoryCard">
-          <div class="categoryIcon">🤖</div>
-          <div>
-            <strong>Characters</strong>
-            <span>Figures & characters</span>
-          </div>
-        </a>
-
-      </div>
-
-    </section>
-
-
-    <!-- MODELS -->
-    <section id="models" class="section modelsSection">
-
-      <div class="modelsHeader">
-
-        <div>
-
-          <p class="eyebrow">
-            DISCOVER
-          </p>
-
-          <h2>
-            Featured Models
-          </h2>
-
-        </div>
-
-
-        <div class="modelTabs">
-
-          <button class="active">
-            For You
-          </button>
-
-          <button>
-            Trending
-          </button>
-
-          <button>
-            New
-          </button>
-
-          <button>
-            Popular
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <!-- APP.JS WILL PUT MODELS HERE -->
-      <div id="grid" class="modelGrid"></div>
-
-    </section>
-
-
-    <!-- DESIGNER SECTION -->
-    <section id="sell" class="designerSection">
-
-      <div class="designerContent">
-
-        <p class="eyebrow">
-          FOR DESIGNERS
-        </p>
-
-        <h2>
-          Share your designs.<br>
-          Build your audience.
-        </h2>
-
-        <p>
-          Upload your STL, 3MF or OBJ files and share your
-          creations with the 3D printing community.
-        </p>
-
-        <button
-          class="primaryBtn"
-          onclick="openUpload()"
-        >
-          Upload a 3D Model
-        </button>
-
-      </div>
-
-
-      <div class="designerVisual">
-
-        <div class="floatingCard cardOne">
-          🧩
-        </div>
-
-        <div class="floatingCard cardTwo">
-          🚗
-        </div>
-
-        <div class="floatingCard cardThree">
-          ⚙️
-        </div>
-
-        <div class="visualCenter">
-          3D
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- MODAL -->
-
-  <div
-    id="modal"
-    class="modal hidden"
-  >
-
-    <div class="modalBox">
-
-      <button
-        class="close"
-        onclick="closeModal()"
-      >
-        ×
-      </button>
-
-      <div id="modalContent"></div>
+      <a class="secondaryBtn" href="#sell">
+        Become a Designer
+      </a>
 
     </div>
 
   </div>
 
+</section>
 
-  <footer>
 
-    <div class="footerLogo">
-      MARKETPLACE<span>3D</span>
+<section id="categories" class="contentSection">
+
+  <div class="sectionTitle">
+
+    <div>
+      <span>EXPLORE</span>
+      <h2>Popular Categories</h2>
     </div>
 
-    <p>
-      The community marketplace for 3D printable models.
+    <a href="#models">
+      View all →
+    </a>
+
+  </div>
+
+
+  <div class="categoryCards">
+
+    <a class="categoryCard" href="#models">
+      <div class="categoryIcon">🧸</div>
+      <strong>Toys & Games</strong>
+      <small>Fun & collectibles</small>
+    </a>
+
+    <a class="categoryCard" href="#models">
+      <div class="categoryIcon">🏠</div>
+      <strong>Home & Decor</strong>
+      <small>Make your space unique</small>
+    </a>
+
+    <a class="categoryCard" href="#models">
+      <div class="categoryIcon">⚙️</div>
+      <strong>Tools & Parts</strong>
+      <small>Useful everyday models</small>
+    </a>
+
+    <a class="categoryCard" href="#models">
+      <div class="categoryIcon">🎨</div>
+      <strong>Art & Design</strong>
+      <small>Creative 3D models</small>
+    </a>
+
+    <a class="categoryCard" href="#models">
+      <div class="categoryIcon">🚗</div>
+      <strong>Vehicles</strong>
+      <small>Cars and machines</small>
+    </a>
+
+    <a class="categoryCard" href="#models">
+      <div class="categoryIcon">🤖</div>
+      <strong>Characters</strong>
+      <small>Figures & collectibles</small>
+    </a>
+
+  </div>
+
+</section>
+
+
+<section id="models" class="contentSection">
+
+  <div class="modelsHeader">
+
+    <div>
+      <span>DISCOVER</span>
+      <h2>Featured 3D Models</h2>
+    </div>
+
+    <div class="modelTabs">
+
+      <button class="active">For You</button>
+      <button>Trending</button>
+      <button>New</button>
+      <button>Popular</button>
+
+    </div>
+
+  </div>
+
+  <div id="grid" class="modelGrid"></div>
+
+</section>
+
+
+<section id="sell" class="designerSection">
+
+  <div>
+
+    <p class="eyebrow">
+      FOR DESIGNERS
     </p>
 
-    <div class="footerLinks">
-      <a href="#models">Explore</a>
-      <a href="#categories">Categories</a>
-      <a href="#sell">Sell Models</a>
-    </div>
+    <h2>
+      Share your designs.<br>
+      Build your audience.
+    </h2>
 
-  </footer>
+    <p>
+      Upload your STL, 3MF or OBJ files and share your
+      creations with the 3D printing community.
+    </p>
+
+    <button class="primaryBtn" onclick="openUpload()">
+      Upload a 3D Model
+    </button>
+
+  </div>
+
+  <div class="designerGraphic">
+    <div class="cube">◇</div>
+  </div>
+
+</section>
+
+</main>
 
 
-  <script src="/app.js"></script>
+<footer>
+
+  <div class="logo">
+    MARKETPLACE<span>3D</span>
+  </div>
+
+  <p>
+    The community marketplace for 3D printable models.
+  </p>
+
+</footer>
+
+</div>
+
+
+<div id="modal" class="modal hidden">
+
+  <div class="modalBox">
+
+    <button class="close" onclick="closeModal()">
+      ×
+    </button>
+
+    <div id="modalContent"></div>
+
+  </div>
+
+</div>
+
+
+<script src="/app.js"></script>
 
 </body>
 </html>
