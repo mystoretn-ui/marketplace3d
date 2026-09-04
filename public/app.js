@@ -1,120 +1,184 @@
-/* =========================
-   MODELS DATA
-========================= */
-
 const models = [
 
   {
-    name: "BMW E39 Wide Body Kit",
-    creator: "BMW Accessories",
-    category: "hobby",
-    image:
-      "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=900&q=80",
-    downloads: "714",
-    likes: "407",
+    title: "BMW E39 Front Bumper",
+    creator: "AutoDesign",
+    category: "carparts",
+    type: "popular",
+    icon: "🚗",
     price: "Free"
   },
 
   {
-    name: "FlyGun 10125S",
-    creator: "LUCKYCO",
-    category: "toys",
-    image:
-      "https://images.unsplash.com/photo-1595590424283-b8f17842773f?auto=format&fit=crop&w=900&q=80",
-    downloads: "8.2k",
-    likes: "5.8k",
+    title: "Car Dashboard Holder",
+    creator: "PrintGarage",
+    category: "carparts",
+    type: "trending",
+    icon: "🔧",
     price: "Free"
   },
 
   {
-    name: "3D Printer Tool Holder",
-    creator: "Maker Studio",
-    category: "tools",
-    image:
-      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=900&q=80",
-    downloads: "4.5k",
-    likes: "2.1k",
-    price: "Free"
-  },
-
-  {
-    name: "Modern Desk Organizer",
-    creator: "PrintLab",
-    category: "home",
-    image:
-      "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=900&q=80",
-    downloads: "12k",
-    likes: "6.7k",
+    title: "BMW E46 Air Vent",
+    creator: "3D Auto Lab",
+    category: "carparts",
+    type: "new",
+    icon: "⚙️",
     price: "$2.99"
   },
 
   {
-    name: "Cute Mini Figure",
-    creator: "Bambu Studio",
-    category: "toys",
-    image:
-      "https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=900&q=80",
-    downloads: "6.6k",
-    likes: "3.9k",
-    price: "Free"
-  },
-
-  {
-    name: "Mechanical Engine",
-    creator: "3D Engineer",
+    title: "Phone Holder",
+    creator: "Maker Studio",
     category: "tools",
-    image:
-      "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?auto=format&fit=crop&w=900&q=80",
-    downloads: "5.4k",
-    likes: "3.1k",
-    price: "$4.50"
-  },
-
-  {
-    name: "Decorative Vase",
-    creator: "Creative Prints",
-    category: "decor",
-    image:
-      "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=900&q=80",
-    downloads: "9.8k",
-    likes: "4.8k",
+    type: "popular",
+    icon: "📱",
     price: "Free"
   },
 
   {
-    name: "Robot Miniature",
-    creator: "Maker World",
+    title: "Wall Planter",
+    creator: "HomePrint",
+    category: "home",
+    type: "new",
+    icon: "🪴",
+    price: "Free"
+  },
+
+  {
+    title: "Mechanical Gear",
+    creator: "Engineering Lab",
+    category: "tools",
+    type: "trending",
+    icon: "⚙️",
+    price: "Free"
+  },
+
+  {
+    title: "Cute Robot",
+    creator: "MiniFactory",
     category: "miniatures",
-    image:
-      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=900&q=80",
-    downloads: "3.2k",
-    likes: "2k",
-    price: "$1.99"
+    type: "popular",
+    icon: "🤖",
+    price: "$1.50"
+  },
+
+  {
+    title: "Dragon Figure",
+    creator: "FantasyPrint",
+    category: "toys",
+    type: "trending",
+    icon: "🐉",
+    price: "Free"
+  },
+
+  {
+    title: "Modern Vase",
+    creator: "DesignLab",
+    category: "art",
+    type: "new",
+    icon: "🏺",
+    price: "Free"
+  },
+
+  {
+    title: "Car Key Holder",
+    creator: "AutoMaker",
+    category: "carparts",
+    type: "trending",
+    icon: "🔑",
+    price: "Free"
+  },
+
+  {
+    title: "LED Lamp",
+    creator: "Creative3D",
+    category: "home",
+    type: "popular",
+    icon: "💡",
+    price: "$3.00"
+  },
+
+  {
+    title: "RC Car Wheel",
+    creator: "RC Factory",
+    category: "carparts",
+    type: "new",
+    icon: "🛞",
+    price: "Free"
   }
 
 ];
+
+
+const grid = document.getElementById("grid");
+const searchInput = document.getElementById("search");
+const modelsTitle = document.getElementById("modelsTitle");
+
+
+let currentCategory = "all";
+let currentTab = "all";
 
 
 /* =========================
    DISPLAY MODELS
 ========================= */
 
-const grid = document.getElementById("modelGrid");
+function displayModels(){
+
+  let result = [...models];
 
 
-function displayModels(list){
+  /* CATEGORY FILTER */
+
+  if(currentCategory !== "all"){
+
+    result = result.filter(
+      model => model.category === currentCategory
+    );
+
+  }
+
+
+  /* TAB FILTER */
+
+  if(currentTab !== "all"){
+
+    result = result.filter(
+      model => model.type === currentTab
+    );
+
+  }
+
+
+  /* SEARCH */
+
+  const search = searchInput.value
+    .trim()
+    .toLowerCase();
+
+  if(search){
+
+    result = result.filter(model =>
+
+      model.title.toLowerCase().includes(search) ||
+
+      model.creator.toLowerCase().includes(search) ||
+
+      model.category.toLowerCase().includes(search)
+
+    );
+
+  }
+
 
   grid.innerHTML = "";
 
-  if(list.length === 0){
+
+  if(result.length === 0){
 
     grid.innerHTML = `
-      <div style="
-        grid-column:1/-1;
-        padding:50px;
-        text-align:center;
-        color:#888;
-      ">
+      <div class="empty">
         No models found.
       </div>
     `;
@@ -123,55 +187,34 @@ function displayModels(list){
   }
 
 
-  list.forEach(model => {
+  result.forEach(model => {
 
-    const card = document.createElement("article");
+    const card = document.createElement("div");
 
-    card.className = "modelCard";
+    card.className = "card";
 
     card.innerHTML = `
 
-      <div class="modelImage">
+      <div class="thumb">
 
-        <img
-          src="${model.image}"
-          alt="${model.name}"
-        >
-
-        <button
-          class="like"
-          onclick="event.stopPropagation(); this.textContent='♥'"
-        >
-          ♡
-        </button>
+        <div class="thumbVisual">
+          ${model.icon}
+        </div>
 
       </div>
 
-
-      <div class="modelInfo">
+      <div class="cardBody">
 
         <h3>
-          ${model.name}
+          ${model.title}
         </h3>
 
-        <div class="creator">
-          ${model.creator}
+        <div class="muted">
+          by ${model.creator}
         </div>
 
-        <div class="stats">
-
-          <span>
-            ↓ ${model.downloads}
-          </span>
-
-          <span>
-            ♡ ${model.likes}
-          </span>
-
-          <strong class="price">
-            ${model.price}
-          </strong>
-
+        <div class="price">
+          ${model.price}
         </div>
 
       </div>
@@ -181,10 +224,7 @@ function displayModels(list){
 
     card.addEventListener("click", () => {
 
-      alert(
-        "Model: " + model.name +
-        "\nCreator: " + model.creator
-      );
+      openModel(model);
 
     });
 
@@ -196,165 +236,419 @@ function displayModels(list){
 }
 
 
-/* INITIAL */
+/* =========================
+   CATEGORY FILTER
+========================= */
 
-displayModels(models);
+document
+  .querySelectorAll(".categoryBar a")
+  .forEach(link => {
+
+    link.addEventListener("click", function(e){
+
+      e.preventDefault();
+
+      document
+        .querySelectorAll(".categoryBar a")
+        .forEach(item =>
+          item.classList.remove("categoryActive")
+        );
+
+      this.classList.add("categoryActive");
+
+
+      currentCategory =
+        this.dataset.category;
+
+
+      currentTab = "all";
+
+
+      document
+        .querySelectorAll(".modelTabs button")
+        .forEach(btn =>
+          btn.classList.remove("active")
+        );
+
+      document
+        .querySelector('.modelTabs button[data-tab="all"]')
+        .classList.add("active");
+
+
+      updateTitle();
+
+      displayModels();
+
+      scrollToModels();
+
+    });
+
+  });
+
+
+/* =========================
+   CATEGORY CARDS
+========================= */
+
+document
+  .querySelectorAll(".categoryCard")
+  .forEach(card => {
+
+    card.addEventListener("click", function(){
+
+      currentCategory =
+        this.dataset.filter;
+
+      currentTab = "all";
+
+
+      document
+        .querySelectorAll(".categoryBar a")
+        .forEach(item =>
+          item.classList.remove("categoryActive")
+        );
+
+
+      const matching =
+        document.querySelector(
+          `.categoryBar a[data-category="${currentCategory}"]`
+        );
+
+
+      if(matching){
+
+        matching.classList.add(
+          "categoryActive"
+        );
+
+      }
+
+
+      document
+        .querySelectorAll(".modelTabs button")
+        .forEach(btn =>
+          btn.classList.remove("active")
+        );
+
+
+      document
+        .querySelector('.modelTabs button[data-tab="all"]')
+        .classList.add("active");
+
+
+      updateTitle();
+
+      displayModels();
+
+    });
+
+  });
+
+
+/* =========================
+   TABS
+========================= */
+
+document
+  .querySelectorAll(".modelTabs button")
+  .forEach(button => {
+
+    button.addEventListener("click", function(){
+
+      document
+        .querySelectorAll(".modelTabs button")
+        .forEach(btn =>
+          btn.classList.remove("active")
+        );
+
+      this.classList.add("active");
+
+
+      currentTab =
+        this.dataset.tab;
+
+
+      displayModels();
+
+    });
+
+  });
 
 
 /* =========================
    SEARCH
 ========================= */
 
-const searchInput =
-  document.getElementById("searchInput");
-
-
-searchInput.addEventListener("input", () => {
-
-  const search =
-    searchInput.value
-      .toLowerCase()
-      .trim();
-
-
-  const result = models.filter(model =>
-
-    model.name.toLowerCase().includes(search) ||
-
-    model.creator.toLowerCase().includes(search) ||
-
-    model.category.toLowerCase().includes(search)
-
-  );
-
-
-  displayModels(result);
-
-});
+searchInput.addEventListener(
+  "input",
+  displayModels
+);
 
 
 /* =========================
-   CATEGORIES
+   UPDATE TITLE
 ========================= */
 
-const categoryButtons =
-  document.querySelectorAll(".category");
+function updateTitle(){
+
+  const names = {
+
+    all: "Featured 3D Models",
+
+    trending: "Trending Models",
+
+    home: "Home & Decor",
+
+    toys: "Toys & Games",
+
+    tools: "Tools & Parts",
+
+    carparts: "Car Parts",
+
+    art: "Art & Design",
+
+    miniatures: "Miniatures",
+
+    electronics: "Electronics"
+
+  };
 
 
-categoryButtons.forEach(button => {
+  modelsTitle.textContent =
+    names[currentCategory] ||
+    "Featured 3D Models";
 
-  button.addEventListener("click", () => {
+}
 
-    categoryButtons.forEach(btn => {
-      btn.classList.remove("active");
+
+/* =========================
+   SCROLL
+========================= */
+
+function scrollToModels(){
+
+  document
+    .getElementById("models")
+    .scrollIntoView({
+      behavior:"smooth"
     });
 
-    button.classList.add("active");
+}
 
 
-    const category =
-      button.dataset.category;
+/* =========================
+   MODEL MODAL
+========================= */
+
+function openModel(model){
+
+  const modal =
+    document.getElementById("modal");
+
+  const content =
+    document.getElementById("modalContent");
 
 
-    if(category === "all"){
+  content.innerHTML = `
 
-      displayModels(models);
+    <div style="text-align:center">
 
-      return;
+      <div style="font-size:100px">
+        ${model.icon}
+      </div>
 
-    }
+      <h2>
+        ${model.title}
+      </h2>
+
+      <p class="muted">
+        Created by ${model.creator}
+      </p>
+
+      <h3 style="color:#079ed5">
+        ${model.price}
+      </h3>
+
+      <button
+        class="primaryBtn"
+        onclick="alert('Download system coming soon!')"
+      >
+        Download Model
+      </button>
+
+    </div>
+
+  `;
 
 
-    const filtered =
-      models.filter(
-        model => model.category === category
-      );
+  modal.classList.remove("hidden");
 
-
-    displayModels(filtered);
-
-  });
-
-});
+}
 
 
 /* =========================
    LOGIN
 ========================= */
 
-const loginBtn =
-  document.getElementById("loginBtn");
+document
+  .getElementById("loginBtn")
+  .addEventListener("click", () => {
 
-const loginModal =
-  document.getElementById("loginModal");
+    const modal =
+      document.getElementById("modal");
+
+    const content =
+      document.getElementById("modalContent");
 
 
-loginBtn.addEventListener("click", () => {
+    content.innerHTML = `
 
-  loginModal.classList.remove("hidden");
+      <h2>Login</h2>
 
-});
+      <p class="muted">
+        Login to your Marketplace3D account.
+      </p>
+
+      <input
+        type="email"
+        placeholder="Email"
+      >
+
+      <br><br>
+
+      <input
+        type="password"
+        placeholder="Password"
+      >
+
+      <br><br>
+
+      <button class="primaryBtn">
+        Login
+      </button>
+
+    `;
+
+
+    modal.classList.remove("hidden");
+
+  });
 
 
 /* =========================
    UPLOAD
 ========================= */
 
-const uploadModal =
-  document.getElementById("uploadModal");
-
-
 function openUpload(){
 
-  uploadModal.classList.remove("hidden");
+  const modal =
+    document.getElementById("modal");
+
+  const content =
+    document.getElementById("modalContent");
+
+
+  content.innerHTML = `
+
+    <h2>
+      Upload a 3D Model
+    </h2>
+
+    <p class="muted">
+      Share your STL, 3MF or OBJ model.
+    </p>
+
+    <input
+      type="text"
+      placeholder="Model name"
+    >
+
+    <br><br>
+
+    <select>
+
+      <option>
+        Select category
+      </option>
+
+      <option>
+        Car Parts
+      </option>
+
+      <option>
+        Home & Decor
+      </option>
+
+      <option>
+        Toys & Games
+      </option>
+
+      <option>
+        Tools
+      </option>
+
+      <option>
+        Art
+      </option>
+
+      <option>
+        Miniatures
+      </option>
+
+    </select>
+
+    <br><br>
+
+    <input
+      type="file"
+      accept=".stl,.3mf,.obj"
+    >
+
+    <br><br>
+
+    <button
+      class="primaryBtn"
+      onclick="alert('Upload system coming soon!')"
+    >
+      Upload Model
+    </button>
+
+  `;
+
+
+  modal.classList.remove("hidden");
 
 }
 
 
 /* =========================
-   CLOSE MODALS
+   CLOSE MODAL
 ========================= */
 
 function closeModal(){
 
   document
-    .querySelectorAll(".modal")
-    .forEach(modal => {
-
-      modal.classList.add("hidden");
-
-    });
+    .getElementById("modal")
+    .classList.add("hidden");
 
 }
 
 
-/* CLOSE WHEN CLICK OUTSIDE */
-
 document
-  .querySelectorAll(".modal")
-  .forEach(modal => {
+  .getElementById("modal")
+  .addEventListener("click", function(e){
 
-    modal.addEventListener("click", event => {
+    if(e.target === this){
 
-      if(event.target === modal){
+      closeModal();
 
-        closeModal();
-
-      }
-
-    });
+    }
 
   });
 
 
-/* ESC */
+/* =========================
+   INITIAL LOAD
+========================= */
 
-document.addEventListener("keydown", event => {
-
-  if(event.key === "Escape"){
-
-    closeModal();
-
-  }
-
-});
+displayModels();
