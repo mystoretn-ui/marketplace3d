@@ -29,7 +29,9 @@ if (!fs.existsSync(dbFile)) {
 }
 
 const readDB = () =>
-  JSON.parse(fs.readFileSync(dbFile, "utf8"));
+  JSON.parse(
+    fs.readFileSync(dbFile, "utf8")
+  );
 
 const writeDB = db =>
   fs.writeFileSync(
@@ -48,8 +50,9 @@ const makeId = () =>
 
 const storage = multer.diskStorage({
 
-  destination: (_, __, cb) =>
-    cb(null, uploadDir),
+  destination: (_, __, cb) => {
+    cb(null, uploadDir);
+  },
 
   filename: (_, file, cb) => {
 
@@ -63,9 +66,11 @@ const storage = multer.diskStorage({
       null,
       makeId() + "-" + safe
     );
+
   }
 
 });
+
 
 const upload = multer({
 
@@ -93,7 +98,11 @@ const upload = multer({
       ".webp"
     ];
 
-    cb(null, allowed.includes(ext));
+    cb(
+      null,
+      allowed.includes(ext)
+    );
+
   }
 
 });
@@ -141,10 +150,12 @@ function auth(req, res, next) {
   } catch {
 
     res.status(401).json({
-      error: "Authentication required."
+      error:
+        "Authentication required."
     });
 
   }
+
 }
 
 
@@ -164,10 +175,11 @@ app.get("/api/models", (req, res) => {
     (req.query.category || "")
       .toLowerCase();
 
-  let models =
+  const models =
     db.models.filter(m =>
 
-      (!q ||
+      (
+        !q ||
         `${m.title} ${m.description} ${m.category}`
           .toLowerCase()
           .includes(q)
@@ -175,11 +187,13 @@ app.get("/api/models", (req, res) => {
 
       &&
 
-      (!category ||
+      (
+        !category ||
         m.category.toLowerCase() === category
       )
 
     );
+
 
   res.json(
     models.sort(
@@ -204,7 +218,8 @@ app.get("/api/models/:id", (req, res) => {
   if (!model) {
 
     return res.status(404).json({
-      error: "Model not found."
+      error:
+        "Model not found."
     });
 
   }
@@ -226,6 +241,7 @@ app.post("/api/register", async (req, res) => {
     password
   } = req.body;
 
+
   if (
     !name ||
     !email ||
@@ -240,10 +256,17 @@ app.post("/api/register", async (req, res) => {
 
   }
 
+
   const db = readDB();
 
   const cleanEmail =
-    email.toLowerCase().trim();
+    email
+      .toLowerCase()
+      .trim();
+
+  const cleanName =
+    name.trim();
+
 
   if (
     db.users.some(
@@ -252,26 +275,49 @@ app.post("/api/register", async (req, res) => {
   ) {
 
     return res.status(409).json({
-      error: "Email already registered."
+      error:
+        "Email already registered."
     });
 
   }
 
 
-  /*
-    USER
-  */
+  /* ============================
+     USER
+  ============================ */
 
   const userId = makeId();
 
-  const cleanName =
-    name.trim();
+
+  /* ============================
+     USERNAME
+  ============================ */
+
+  const baseUsername =
+    cleanName
+      .toLowerCase()
+      .replace(
+        /[^a-z0-9]+/g,
+        "-"
+      )
+      .replace(
+        /^-|-$/g,
+        ""
+      );
 
 
-  /*
-    DESIGNER PROFILE
-    يتعمل تلقائياً
-  */
+  const username =
+    (
+      baseUsername ||
+      "designer"
+    ) +
+    "-" +
+    userId.slice(-4);
+
+
+  /* ============================
+     USER + PROFILE
+  ============================ */
 
   const user = {
 
@@ -291,13 +337,7 @@ app.post("/api/register", async (req, res) => {
 
     profile: {
 
-      username:
-        cleanName
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-|-$/g, "") +
-        "-" +
-        userId.slice(-4),
+      username: username,
 
       bio: "",
 
@@ -319,9 +359,9 @@ app.post("/api/register", async (req, res) => {
   writeDB(db);
 
 
-  /*
-    LOGIN TOKEN
-  */
+  /* ============================
+     TOKEN
+  ============================ */
 
   const token =
     jwt.sign(
@@ -351,7 +391,8 @@ app.post("/api/register", async (req, res) => {
 
       role: user.role,
 
-      profile: user.profile
+      profile:
+        user.profile
 
     }
 
@@ -382,6 +423,7 @@ app.post("/api/login", async (req, res) => {
           .trim()
     );
 
+
   if (
     !user ||
     !(await bcrypt.compare(
@@ -394,6 +436,53 @@ app.post("/api/login", async (req, res) => {
       error:
         "Invalid email or password."
     });
+
+  }
+
+
+  /* ============================
+     OLD USERS SUPPORT
+  ============================ */
+
+  if (!user.profile) {
+
+    const userId =
+      user.id;
+
+    const baseUsername =
+      String(user.name || "designer")
+        .toLowerCase()
+        .replace(
+          /[^a-z0-9]+/g,
+          "-"
+        )
+        .replace(
+          /^-|-$/g,
+          ""
+        );
+
+
+    user.profile = {
+
+      username:
+        (
+          baseUsername ||
+          "designer"
+        ) +
+        "-" +
+        userId.slice(-4),
+
+      bio: "",
+
+      avatarUrl: "",
+
+      createdAt:
+        new Date().toISOString()
+
+    };
+
+
+    writeDB(db);
 
   }
 
@@ -427,11 +516,7 @@ app.post("/api/login", async (req, res) => {
       role: user.role,
 
       profile:
-        user.profile || {
-          username: "",
-          bio: "",
-          avatarUrl: ""
-        }
+        user.profile
 
     }
 
@@ -453,9 +538,53 @@ app.get("/api/me", auth, (req, res) => {
       u => u.id === req.user.id
     );
 
+
   if (!user) {
     return res.json(null);
   }
+
+
+  /* OLD USERS */
+
+  if (!user.profile) {
+
+    const baseUsername =
+      String(user.name || "designer")
+        .toLowerCase()
+        .replace(
+          /[^a-z0-9]+/g,
+          "-"
+        )
+        .replace(
+          /^-|-$/g,
+          ""
+        );
+
+
+    user.profile = {
+
+      username:
+        (
+          baseUsername ||
+          "designer"
+        ) +
+        "-" +
+        user.id.slice(-4),
+
+      bio: "",
+
+      avatarUrl: "",
+
+      createdAt:
+        new Date().toISOString()
+
+    };
+
+
+    writeDB(db);
+
+  }
+
 
   res.json({
 
@@ -468,15 +597,116 @@ app.get("/api/me", auth, (req, res) => {
     role: user.role,
 
     profile:
-      user.profile || {
-        username: "",
-        bio: "",
-        avatarUrl: ""
-      }
+      user.profile
 
   });
 
 });
+
+
+/* ================================
+   DESIGNER PORTFOLIO
+================================ */
+
+app.get(
+  "/api/designers/:username",
+  (req, res) => {
+
+    const db = readDB();
+
+    const username =
+      String(
+        req.params.username || ""
+      )
+        .toLowerCase()
+        .trim();
+
+
+    const designer =
+      db.users.find(
+        u =>
+          u.profile &&
+          String(
+            u.profile.username || ""
+          )
+            .toLowerCase()
+            === username
+      );
+
+
+    if (!designer) {
+
+      return res.status(404).json({
+        error:
+          "Designer not found."
+      });
+
+    }
+
+
+    /* ============================
+       DESIGNER MODELS
+    ============================ */
+
+    const models =
+      db.models.filter(
+        m =>
+          m.designerId ===
+          designer.id
+      );
+
+
+    /* ============================
+       DOWNLOADS
+    ============================ */
+
+    const downloads =
+      db.purchases.filter(
+        purchase =>
+          models.some(
+            model =>
+              model.id ===
+              purchase.modelId
+          )
+      ).length;
+
+
+    /* ============================
+       RESPONSE
+    ============================ */
+
+    res.json({
+
+      id:
+        designer.id,
+
+      name:
+        designer.name,
+
+      profile:
+        designer.profile,
+
+      stats: {
+
+        models:
+          models.length,
+
+        downloads:
+          downloads
+
+      },
+
+      models:
+        models.sort(
+          (a, b) =>
+            new Date(b.createdAt) -
+            new Date(a.createdAt)
+        )
+
+    });
+
+  }
+);
 
 
 /* ================================
@@ -508,6 +738,7 @@ app.post(
       });
 
     }
+
 
     const db = readDB();
 
@@ -571,6 +802,7 @@ app.post(
 
     writeDB(db);
 
+
     res.json(model);
 
   }
@@ -590,8 +822,11 @@ app.post(
 
     const model =
       db.models.find(
-        m => m.id === req.params.id
+        m =>
+          m.id ===
+          req.params.id
       );
+
 
     if (!model) {
 
@@ -603,8 +838,12 @@ app.post(
     }
 
 
-    // DEMO ONLY
-    // Real payment will be connected later.
+    /*
+      DEMO ONLY
+
+      Real payment provider
+      will be connected later.
+    */
 
     const purchase = {
 
@@ -646,26 +885,36 @@ app.post(
 
 
 /* ================================
-   START
+   FRONTEND
 ================================ */
 
 app.get(
   "*",
-  (req, res) =>
+  (req, res) => {
+
     res.sendFile(
       path.join(
         __dirname,
         "public",
         "index.html"
       )
-    )
+    );
+
+  }
 );
 
 
+/* ================================
+   START SERVER
+================================ */
+
 app.listen(
   PORT,
-  () =>
+  () => {
+
     console.log(
       `Marketplace3D running on http://localhost:${PORT}`
-    )
+    );
+
+  }
 );
