@@ -91,7 +91,8 @@ const models = [
    DISPLAY MODELS
 ========================= */
 
-const grid = document.getElementById("modelGrid");
+const grid =
+  document.getElementById("modelGrid");
 
 
 function displayModels(list){
@@ -117,7 +118,8 @@ function displayModels(list){
 
   list.forEach(model => {
 
-    const card = document.createElement("div");
+    const card =
+      document.createElement("div");
 
     card.className = "modelCard";
 
@@ -163,9 +165,12 @@ function displayModels(list){
 
     `;
 
+
     card.addEventListener("click", () => {
 
-      document.getElementById("modalContent").innerHTML = `
+      document.getElementById(
+        "modalContent"
+      ).innerHTML = `
 
         <h2>${model.title}</h2>
 
@@ -203,14 +208,13 @@ function displayModels(list){
 
     });
 
+
     grid.appendChild(card);
 
   });
 
 }
 
-
-/* INITIAL */
 
 displayModels(models);
 
@@ -236,7 +240,11 @@ categories.forEach(button => {
     const category =
       button.dataset.category;
 
-    if(category === "all" || category === "trending"){
+
+    if(
+      category === "all" ||
+      category === "trending"
+    ){
 
       displayModels(models);
 
@@ -244,7 +252,8 @@ categories.forEach(button => {
 
       displayModels(
         models.filter(
-          model => model.category === category
+          model =>
+            model.category === category
         )
       );
 
@@ -263,37 +272,42 @@ const searchInput =
   document.getElementById("searchInput");
 
 
-searchInput.addEventListener("input", () => {
+searchInput.addEventListener(
+  "input",
+  () => {
 
-  const value =
-    searchInput.value
-      .toLowerCase()
-      .trim();
-
-  const filtered =
-    models.filter(model =>
-
-      model.title
+    const value =
+      searchInput.value
         .toLowerCase()
-        .includes(value)
+        .trim();
 
-      ||
 
-      model.creator
-        .toLowerCase()
-        .includes(value)
+    const filtered =
+      models.filter(model =>
 
-      ||
+        model.title
+          .toLowerCase()
+          .includes(value)
 
-      model.category
-        .toLowerCase()
-        .includes(value)
+        ||
 
-    );
+        model.creator
+          .toLowerCase()
+          .includes(value)
 
-  displayModels(filtered);
+        ||
 
-});
+        model.category
+          .toLowerCase()
+          .includes(value)
+
+      );
+
+
+    displayModels(filtered);
+
+  }
+);
 
 
 /* =========================
@@ -302,7 +316,9 @@ searchInput.addEventListener("input", () => {
 
 function login(){
 
-  document.getElementById("modalContent").innerHTML = `
+  document.getElementById(
+    "modalContent"
+  ).innerHTML = `
 
     <h2>Login</h2>
 
@@ -343,6 +359,7 @@ function login(){
 
   `;
 
+
   document
     .getElementById("modal")
     .classList.remove("hidden");
@@ -352,12 +369,95 @@ function login(){
 
 document
   .getElementById("loginBtn")
-  .addEventListener("click", login);
+  .addEventListener(
+    "click",
+    login
+  );
 
 
 document
   .getElementById("loginTop")
-  .addEventListener("click", login);
+  .addEventListener(
+    "click",
+    login
+  );
+
+
+/* =========================
+   SIGN UP
+========================= */
+
+function signup(){
+
+  document.getElementById(
+    "modalContent"
+  ).innerHTML = `
+
+    <h2>Create an account</h2>
+
+    <p style="color:#777">
+      Join Marketplace3D and start sharing your designs.
+    </p>
+
+    <input
+      type="text"
+      placeholder="Name / Username"
+      style="
+        width:100%;
+        padding:12px;
+        margin:8px 0;
+        border:1px solid #ddd;
+        border-radius:8px;
+      "
+    >
+
+    <input
+      type="email"
+      placeholder="Email"
+      style="
+        width:100%;
+        padding:12px;
+        margin:8px 0;
+        border:1px solid #ddd;
+        border-radius:8px;
+      "
+    >
+
+    <input
+      type="password"
+      placeholder="Password"
+      style="
+        width:100%;
+        padding:12px;
+        margin:8px 0;
+        border:1px solid #ddd;
+        border-radius:8px;
+      "
+    >
+
+    <button
+      class="uploadBtn"
+      style="margin-top:10px"
+    >
+      Create Account
+    </button>
+
+  `;
+
+
+  document
+    .getElementById("modal")
+    .classList.remove("hidden");
+
+}
+
+
+document
+  .getElementById("signupTop")
+  .addEventListener(
+    "click",
+    signup
+  );
 
 
 /* =========================
@@ -366,7 +466,9 @@ document
 
 function openUpload(){
 
-  document.getElementById("modalContent").innerHTML = `
+  document.getElementById(
+    "modalContent"
+  ).innerHTML = `
 
     <h2>Upload a 3D Model</h2>
 
@@ -405,6 +507,7 @@ function openUpload(){
 
   `;
 
+
   document
     .getElementById("modal")
     .classList.remove("hidden");
@@ -427,13 +530,16 @@ function closeModal(){
 
 document
   .getElementById("modal")
-  .addEventListener("click", function(e){
+  .addEventListener(
+    "click",
+    function(e){
 
-    if(e.target === this){
-      closeModal();
+      if(e.target === this){
+        closeModal();
+      }
+
     }
-
-  });
+  );
 
 
 /* =========================
