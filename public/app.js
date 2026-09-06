@@ -1,10 +1,16 @@
 /* =========================
-   MODELS DATA
+   MARKETPLACE3D APP.JS
+========================= */
+
+
+/* =========================
+   DEMO MODELS
 ========================= */
 
 const models = [
 
   {
+    id: "demo-bmw",
     title: "BMW E39 Wide Body Kit",
     creator: "Car Accessories",
     category: "carparts",
@@ -15,6 +21,7 @@ const models = [
   },
 
   {
+    id: "demo-dashboard",
     title: "Sports Car Dashboard",
     creator: "AutoDesign",
     category: "carparts",
@@ -25,6 +32,7 @@ const models = [
   },
 
   {
+    id: "demo-phone",
     title: "Car Phone Holder",
     creator: "Maker Studio",
     category: "tools",
@@ -35,6 +43,7 @@ const models = [
   },
 
   {
+    id: "demo-gear",
     title: "Mechanical Gear Set",
     creator: "PrintLab",
     category: "tools",
@@ -45,6 +54,7 @@ const models = [
   },
 
   {
+    id: "demo-desk",
     title: "Modern Desk Organizer",
     creator: "Design3D",
     category: "home",
@@ -55,6 +65,7 @@ const models = [
   },
 
   {
+    id: "demo-racing",
     title: "Miniature Racing Car",
     creator: "MiniMaker",
     category: "miniatures",
@@ -65,6 +76,7 @@ const models = [
   },
 
   {
+    id: "demo-toolbox",
     title: "3D Printer Tool Box",
     creator: "PrintMaster",
     category: "printer",
@@ -75,6 +87,7 @@ const models = [
   },
 
   {
+    id: "demo-vase",
     title: "Decorative Geometric Vase",
     creator: "Creative3D",
     category: "home",
@@ -88,33 +101,284 @@ const models = [
 
 
 /* =========================
-   DISPLAY MODELS
+   REAL MODELS
+========================= */
+
+let realModels = [];
+
+
+/* =========================
+   DOM
 ========================= */
 
 const grid =
   document.getElementById("modelGrid");
 
 
-function displayModels(list){
+/* =========================
+   ESCAPE HTML
+========================= */
 
-  if(!grid) return;
+function escapeHtml(value) {
+
+  return String(value || "")
+    .replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    }[char]));
+
+}
+
+
+/* =========================
+   GET ALL MODELS
+========================= */
+
+async function loadModels() {
+
+  try {
+
+    const response =
+      await fetch("/api/models");
+
+
+    if (!response.ok) {
+      throw new Error("Could not load models.");
+    }
+
+
+    const data =
+      await response.json();
+
+
+    if (Array.isArray(data)) {
+
+      realModels = data.map(model => ({
+
+        ...model,
+
+        creator:
+          model.designerName ||
+          model.creator ||
+          "Designer",
+
+        image:
+          model.imageUrl ||
+          model.image ||
+          "",
+
+        stats:
+          model.stats ||
+          "0 ♥"
+
+      }));
+
+    }
+
+
+    /*
+      Demo models remain visible.
+      Real uploaded models are added
+      to the marketplace.
+    */
+
+    const allModels = [
+      ...realModels,
+      ...models
+    ];
+
+
+    displayModels(allModels);
+
+
+  } catch(error) {
+
+    console.error(
+      "Models loading error:",
+      error
+    );
+
+
+    /*
+      If server is unavailable,
+      keep the demo models.
+    */
+
+    displayModels(models);
+
+  }
+
+}
+
+
+/* =========================
+   FIND DESIGNER USERNAME
+========================= */
+
+async function getDesignerUsername(
+  model
+) {
+
+  /*
+    If server model already contains
+    a username, use it directly.
+  */
+
+  if (model.username) {
+    return model.username;
+  }
+
+
+  if (model.designerUsername) {
+    return model.designerUsername;
+  }
+
+
+  /*
+    Some models only have designerId.
+    We ask the server for the user.
+  */
+
+  if (!model.designerId) {
+    return null;
+  }
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/users/" +
+        encodeURIComponent(
+          model.designerId
+        )
+      );
+
+
+    if (!response.ok) {
+      return null;
+    }
+
+
+    const user =
+      await response.json();
+
+
+    return (
+      user?.profile?.username ||
+      user?.username ||
+      null
+    );
+
+
+  } catch {
+
+    return null;
+
+  }
+
+}
+
+
+/* =========================
+   OPEN DESIGNER
+========================= */
+
+async function openDesignerForModel(
+  model
+) {
+
+  /*
+    Real uploaded model
+  */
+
+  if (model.designerId) {
+
+    /*
+      First try username already
+      available in model.
+    */
+
+    let username =
+      model.designerUsername ||
+      model.username;
+
+
+    /*
+      If not available, use
+      designer name as fallback.
+    */
+
+    if (!username) {
+
+      username =
+        model.designerName ||
+        model.creator;
+
+    }
+
+
+    if (username) {
+
+      window.location.href =
+        "/portfolio.html?username=" +
+        encodeURIComponent(username);
+
+      return;
+
+    }
+
+  }
+
+
+  /*
+    Demo model:
+    no real account exists.
+  */
+
+  alert(
+    "This is a demo designer profile."
+  );
+
+}
+
+
+/* =========================
+   DISPLAY MODELS
+========================= */
+
+function displayModels(list) {
+
+  if (!grid) {
+    return;
+  }
+
 
   grid.innerHTML = "";
 
-  if(list.length === 0){
+
+  if (!list.length) {
 
     grid.innerHTML = `
+
       <div style="
         grid-column:1/-1;
         padding:50px;
         text-align:center;
         color:#888;
       ">
+
         No models found.
+
       </div>
+
     `;
 
     return;
+
   }
 
 
@@ -123,17 +387,94 @@ function displayModels(list){
     const card =
       document.createElement("div");
 
-    card.className = "modelCard";
+
+    card.className =
+      "modelCard";
+
+
+    const image =
+      model.image ||
+      model.imageUrl ||
+      "";
+
+
+    const title =
+      model.title ||
+      "Untitled model";
+
+
+    const creator =
+      model.creator ||
+      model.designerName ||
+      "Designer";
+
+
+    const category =
+      model.category ||
+      "Other";
+
+
+    let price =
+      model.price;
+
+
+    if (
+      price === undefined ||
+      price === null ||
+      price === ""
+    ) {
+
+      price = "Free";
+
+    }
+
+
+    if (
+      typeof price === "number"
+    ) {
+
+      price =
+        price > 0
+          ? "$" + price.toFixed(2)
+          : "Free";
+
+    }
+
 
     card.innerHTML = `
 
       <div class="modelImage">
 
-        <img
-          src="${model.image}"
-          alt="${model.title}"
-          loading="lazy"
-        >
+        ${
+          image
+
+          ? `
+
+            <img
+              src="${escapeHtml(image)}"
+              alt="${escapeHtml(title)}"
+              loading="lazy"
+            >
+
+          `
+
+          : `
+
+            <div style="
+              width:100%;
+              height:100%;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              color:#999;
+              font-weight:700;
+            ">
+              3D MODEL
+            </div>
+
+          `
+        }
+
 
         <div class="modelBadge">
           3D
@@ -141,32 +482,44 @@ function displayModels(list){
 
       </div>
 
+
       <div class="modelBody">
 
         <h3>
-          ${model.title}
+          ${escapeHtml(title)}
         </h3>
+
 
         <div
           class="creator"
-          onclick="event.stopPropagation(); openDesigner('${encodeURIComponent(model.creator)}')"
           style="
             cursor:pointer;
             color:#079ed5;
             font-weight:600;
           "
         >
-          ${model.creator}
+          ${escapeHtml(creator)}
         </div>
+
 
         <div class="modelBottom">
 
           <div class="stats">
-            ${model.stats}
+
+            ${
+              model.stats ||
+              "0 ♥"
+            }
+
           </div>
 
+
           <div class="price">
-            ${model.price}
+
+            ${escapeHtml(
+              String(price)
+            )}
+
           </div>
 
         </div>
@@ -177,77 +530,45 @@ function displayModels(list){
 
 
     /* =========================
+       CREATOR CLICK
+    ========================= */
+
+    const creatorElement =
+      card.querySelector(
+        ".creator"
+      );
+
+
+    if (creatorElement) {
+
+      creatorElement.addEventListener(
+        "click",
+        async event => {
+
+          event.stopPropagation();
+
+          await openDesignerForModel(
+            model
+          );
+
+        }
+      );
+
+    }
+
+
+    /* =========================
        MODEL CLICK
     ========================= */
 
-    card.addEventListener("click", () => {
+    card.addEventListener(
+      "click",
+      () => {
 
-      const modalContent =
-        document.getElementById(
-          "modalContent"
-        );
+        openModelModal(model);
 
-      const modal =
-        document.getElementById(
-          "modal"
-        );
-
-
-      if(!modalContent || !modal){
-        return;
       }
-
-
-      modalContent.innerHTML = `
-
-        <h2>
-          ${model.title}
-        </h2>
-
-        <img
-          src="${model.image}"
-          style="
-            width:100%;
-            height:260px;
-            object-fit:cover;
-            border-radius:10px;
-            margin:15px 0;
-          "
-        >
-
-        <p>
-          Created by
-          <b
-            onclick="openDesigner('${encodeURIComponent(model.creator)}')"
-            style="
-              color:#079ed5;
-              cursor:pointer;
-            "
-          >
-            ${model.creator}
-          </b>
-        </p>
-
-        <p>
-          This 3D model is available
-          on Marketplace3D.
-        </p>
-
-        <button
-          class="uploadBtn"
-          style="margin-top:10px"
-        >
-          Download Model
-        </button>
-
-      `;
-
-
-      modal
-        .classList
-        .remove("hidden");
-
-    });
+    );
 
 
     grid.appendChild(card);
@@ -257,22 +578,258 @@ function displayModels(list){
 }
 
 
-displayModels(models);
+/* =========================
+   MODEL MODAL
+========================= */
+
+function openModelModal(model) {
+
+  const modalContent =
+    document.getElementById(
+      "modalContent"
+    );
+
+
+  const modal =
+    document.getElementById(
+      "modal"
+    );
+
+
+  if (
+    !modalContent ||
+    !modal
+  ) {
+
+    return;
+
+  }
+
+
+  const image =
+    model.image ||
+    model.imageUrl ||
+    "";
+
+
+  const title =
+    model.title ||
+    "Untitled model";
+
+
+  const creator =
+    model.creator ||
+    model.designerName ||
+    "Designer";
+
+
+  modalContent.innerHTML = `
+
+    <h2>
+      ${escapeHtml(title)}
+    </h2>
+
+
+    ${
+      image
+
+      ? `
+
+        <img
+          src="${escapeHtml(image)}"
+          alt="${escapeHtml(title)}"
+          style="
+            width:100%;
+            height:260px;
+            object-fit:cover;
+            border-radius:10px;
+            margin:15px 0;
+          "
+        >
+
+      `
+
+      : ""
+
+    }
+
+
+    <p>
+
+      Created by
+
+      <b
+        id="modalDesigner"
+        style="
+          color:#079ed5;
+          cursor:pointer;
+        "
+      >
+        ${escapeHtml(creator)}
+      </b>
+
+    </p>
+
+
+    <p>
+      This 3D model is available
+      on Marketplace3D.
+    </p>
+
+
+    <button
+      id="downloadModelBtn"
+      class="uploadBtn"
+      style="margin-top:10px"
+    >
+      Download Model
+    </button>
+
+  `;
+
+
+  const designerButton =
+    document.getElementById(
+      "modalDesigner"
+    );
+
+
+  if (designerButton) {
+
+    designerButton.onclick =
+      async event => {
+
+        event.stopPropagation();
+
+        await openDesignerForModel(
+          model
+        );
+
+      };
+
+  }
+
+
+  const downloadButton =
+    document.getElementById(
+      "downloadModelBtn"
+    );
+
+
+  if (downloadButton) {
+
+    downloadButton.onclick =
+      () => {
+
+        downloadModel(model);
+
+      };
+
+  }
+
+
+  modal
+    .classList
+    .remove("hidden");
+
+}
 
 
 /* =========================
-   DESIGNER PORTFOLIO
+   DOWNLOAD MODEL
 ========================= */
 
-function openDesigner(username){
+async function downloadModel(
+  model
+) {
 
-  if(!username){
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
+
+  /*
+    Demo model
+  */
+
+  if (!model.designerId) {
+
+    alert(
+      "This demo model cannot be downloaded yet."
+    );
+
     return;
+
   }
 
-  window.location.href =
-    "/portfolio.html?username=" +
-    username;
+
+  if (!token) {
+
+    alert(
+      "Please login before downloading."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/purchase/" +
+        encodeURIComponent(
+          model.id
+        ),
+        {
+
+          method: "POST",
+
+          headers: {
+
+            Authorization:
+              "Bearer " +
+              token
+
+          }
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      alert(
+        data.error ||
+        "Download failed."
+      );
+
+      return;
+
+    }
+
+
+    if (data.downloadUrl) {
+
+      window.location.href =
+        data.downloadUrl;
+
+    }
+
+
+  } catch {
+
+    alert(
+      "Server connection error."
+    );
+
+  }
 
 }
 
@@ -293,10 +850,11 @@ categories.forEach(button => {
     "click",
     () => {
 
-      categories.forEach(btn =>
-        btn.classList.remove(
-          "active"
-        )
+      categories.forEach(
+        btn =>
+          btn.classList.remove(
+            "active"
+          )
       );
 
 
@@ -309,24 +867,49 @@ categories.forEach(button => {
         button.dataset.category;
 
 
-      if(
+      const allModels = [
+        ...realModels,
+        ...models
+      ];
+
+
+      if (
         category === "all" ||
         category === "trending"
-      ){
-
-        displayModels(models);
-
-      }else{
+      ) {
 
         displayModels(
-          models.filter(
-            model =>
-              model.category ===
-              category
-          )
+          allModels
         );
 
+        return;
+
       }
+
+
+      displayModels(
+
+        allModels.filter(
+          model => {
+
+            const modelCategory =
+              String(
+                model.category ||
+                ""
+              ).toLowerCase();
+
+
+            return (
+              modelCategory ===
+              String(
+                category
+              ).toLowerCase()
+            );
+
+          }
+        )
+
+      );
 
     }
   );
@@ -344,7 +927,7 @@ const searchInput =
   );
 
 
-if(searchInput){
+if (searchInput) {
 
   searchInput.addEventListener(
     "input",
@@ -356,29 +939,54 @@ if(searchInput){
           .trim();
 
 
+      const allModels = [
+        ...realModels,
+        ...models
+      ];
+
+
       const filtered =
-        models.filter(model =>
+        allModels.filter(
+          model => {
 
-          model.title
-            .toLowerCase()
-            .includes(value)
+            const title =
+              String(
+                model.title || ""
+              ).toLowerCase();
 
-          ||
 
-          model.creator
-            .toLowerCase()
-            .includes(value)
+            const creator =
+              String(
+                model.creator ||
+                model.designerName ||
+                ""
+              ).toLowerCase();
 
-          ||
 
-          model.category
-            .toLowerCase()
-            .includes(value)
+            const category =
+              String(
+                model.category ||
+                ""
+              ).toLowerCase();
 
+
+            return (
+
+              title.includes(value) ||
+
+              creator.includes(value) ||
+
+              category.includes(value)
+
+            );
+
+          }
         );
 
 
-      displayModels(filtered);
+      displayModels(
+        filtered
+      );
 
     }
   );
@@ -390,12 +998,13 @@ if(searchInput){
    LOGIN
 ========================= */
 
-function login(){
+function login() {
 
   const modalContent =
     document.getElementById(
       "modalContent"
     );
+
 
   const modal =
     document.getElementById(
@@ -403,8 +1012,13 @@ function login(){
     );
 
 
-  if(!modalContent || !modal){
+  if (
+    !modalContent ||
+    !modal
+  ) {
+
     return;
+
   }
 
 
@@ -414,12 +1028,15 @@ function login(){
       Login
     </h2>
 
+
     <p style="color:#777">
       Login to your
       Marketplace3D account.
     </p>
 
+
     <input
+      id="loginEmail"
       type="email"
       placeholder="Email"
       style="
@@ -431,7 +1048,9 @@ function login(){
       "
     >
 
+
     <input
+      id="loginPassword"
       type="password"
       placeholder="Password"
       style="
@@ -443,12 +1062,23 @@ function login(){
       "
     >
 
+
     <button
+      id="doLoginBtn"
       class="uploadBtn"
       style="margin-top:10px"
     >
       Login
     </button>
+
+
+    <div
+      id="loginMessage"
+      style="
+        margin-top:12px;
+        font-size:13px;
+      "
+    ></div>
 
   `;
 
@@ -457,37 +1087,144 @@ function login(){
     .classList
     .remove("hidden");
 
-}
+
+  document
+    .getElementById(
+      "doLoginBtn"
+    )
+    .addEventListener(
+      "click",
+      async () => {
+
+        const email =
+          document
+            .getElementById(
+              "loginEmail"
+            )
+            .value
+            .trim();
 
 
-const loginBtn =
-  document.getElementById(
-    "loginBtn"
-  );
+        const password =
+          document
+            .getElementById(
+              "loginPassword"
+            )
+            .value;
 
 
-if(loginBtn){
-
-  loginBtn.addEventListener(
-    "click",
-    login
-  );
-
-}
+        const message =
+          document
+            .getElementById(
+              "loginMessage"
+            );
 
 
-const loginTop =
-  document.getElementById(
-    "loginTop"
-  );
+        if (
+          !email ||
+          !password
+        ) {
+
+          message.textContent =
+            "Please enter your email and password.";
+
+          message.style.color =
+            "#d33";
+
+          return;
+
+        }
 
 
-if(loginTop){
+        try {
 
-  loginTop.addEventListener(
-    "click",
-    login
-  );
+          const response =
+            await fetch(
+              "/api/login",
+              {
+
+                method: "POST",
+
+                headers: {
+
+                  "Content-Type":
+                    "application/json"
+
+                },
+
+                body:
+                  JSON.stringify({
+                    email,
+                    password
+                  })
+
+              }
+            );
+
+
+          const data =
+            await response.json();
+
+
+          if (!response.ok) {
+
+            message.textContent =
+              data.error ||
+              "Invalid email or password.";
+
+            message.style.color =
+              "#d33";
+
+            return;
+
+          }
+
+
+          localStorage.setItem(
+            "token",
+            data.token
+          );
+
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify(
+              data.user
+            )
+          );
+
+
+          message.textContent =
+            "Login successful!";
+
+          message.style.color =
+            "#159447";
+
+
+          setTimeout(
+            () => {
+
+              closeModal();
+
+              updateAuthUI();
+
+            },
+            500
+          );
+
+
+        } catch {
+
+          message.textContent =
+            "Server connection error.";
+
+          message.style.color =
+            "#d33";
+
+        }
+
+      }
+    );
 
 }
 
@@ -496,12 +1233,13 @@ if(loginTop){
    SIGN UP
 ========================= */
 
-function signup(){
+function signup() {
 
   const modalContent =
     document.getElementById(
       "modalContent"
     );
+
 
   const modal =
     document.getElementById(
@@ -509,8 +1247,13 @@ function signup(){
     );
 
 
-  if(!modalContent || !modal){
+  if (
+    !modalContent ||
+    !modal
+  ) {
+
     return;
+
   }
 
 
@@ -520,10 +1263,12 @@ function signup(){
       Create an account
     </h2>
 
+
     <p style="color:#777">
       Join Marketplace3D and
       start sharing your designs.
     </p>
+
 
     <input
       id="signupName"
@@ -538,6 +1283,7 @@ function signup(){
       "
     >
 
+
     <input
       id="signupEmail"
       type="email"
@@ -550,6 +1296,7 @@ function signup(){
         border-radius:8px;
       "
     >
+
 
     <input
       id="signupPassword"
@@ -564,6 +1311,7 @@ function signup(){
       "
     >
 
+
     <button
       id="createAccountBtn"
       class="uploadBtn"
@@ -571,6 +1319,7 @@ function signup(){
     >
       Create Account
     </button>
+
 
     <div
       id="signupMessage"
@@ -587,10 +1336,6 @@ function signup(){
     .classList
     .remove("hidden");
 
-
-  /* =========================
-     CREATE ACCOUNT
-  ========================= */
 
   document
     .getElementById(
@@ -633,11 +1378,11 @@ function signup(){
             );
 
 
-        if(
+        if (
           !name ||
           !email ||
           !password
-        ){
+        ) {
 
           message.textContent =
             "Please fill in all fields.";
@@ -650,17 +1395,20 @@ function signup(){
         }
 
 
-        try{
+        try {
 
           const response =
             await fetch(
               "/api/register",
               {
-                method:"POST",
 
-                headers:{
+                method: "POST",
+
+                headers: {
+
                   "Content-Type":
                     "application/json"
+
                 },
 
                 body:
@@ -678,7 +1426,7 @@ function signup(){
             await response.json();
 
 
-          if(!response.ok){
+          if (!response.ok) {
 
             message.textContent =
               data.error ||
@@ -691,8 +1439,6 @@ function signup(){
 
           }
 
-
-          /* SAVE LOGIN */
 
           localStorage.setItem(
             "token",
@@ -715,14 +1461,19 @@ function signup(){
             "#159447";
 
 
-          setTimeout(() => {
+          setTimeout(
+            () => {
 
-            closeModal();
+              closeModal();
 
-          }, 700);
+              updateAuthUI();
+
+            },
+            700
+          );
 
 
-        }catch(error){
+        } catch {
 
           message.textContent =
             "Server connection error.";
@@ -738,32 +1489,17 @@ function signup(){
 }
 
 
-const signupTop =
-  document.getElementById(
-    "signupTop"
-  );
-
-
-if(signupTop){
-
-  signupTop.addEventListener(
-    "click",
-    signup
-  );
-
-}
-
-
 /* =========================
    UPLOAD
 ========================= */
 
-function openUpload(){
+function openUpload() {
 
   const modalContent =
     document.getElementById(
       "modalContent"
     );
+
 
   const modal =
     document.getElementById(
@@ -771,8 +1507,28 @@ function openUpload(){
     );
 
 
-  if(!modalContent || !modal){
+  if (
+    !modalContent ||
+    !modal
+  ) {
+
     return;
+
+  }
+
+
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
+
+  if (!token) {
+
+    login();
+
+    return;
+
   }
 
 
@@ -782,10 +1538,12 @@ function openUpload(){
       Upload a 3D Model
     </h2>
 
+
     <p style="color:#777">
       Upload your STL,
       3MF or OBJ file.
     </p>
+
 
     <input
       id="uploadTitle"
@@ -800,6 +1558,7 @@ function openUpload(){
       "
     >
 
+
     <input
       id="uploadFile"
       type="file"
@@ -811,6 +1570,7 @@ function openUpload(){
       "
     >
 
+
     <button
       id="uploadModelBtn"
       class="uploadBtn"
@@ -818,6 +1578,7 @@ function openUpload(){
     >
       Upload Model
     </button>
+
 
     <div
       id="uploadMessage"
@@ -835,10 +1596,6 @@ function openUpload(){
     .remove("hidden");
 
 
-  /* =========================
-     UPLOAD MODEL
-  ========================= */
-
   document
     .getElementById(
       "uploadModelBtn"
@@ -846,12 +1603,6 @@ function openUpload(){
     .addEventListener(
       "click",
       async () => {
-
-        const token =
-          localStorage.getItem(
-            "token"
-          );
-
 
         const title =
           document
@@ -877,20 +1628,10 @@ function openUpload(){
             );
 
 
-        if(!token){
-
-          message.textContent =
-            "Please login first.";
-
-          message.style.color =
-            "#d33";
-
-          return;
-
-        }
-
-
-        if(!title || !file){
+        if (
+          !title ||
+          !file
+        ) {
 
           message.textContent =
             "Please enter a model name and select a file.";
@@ -919,19 +1660,21 @@ function openUpload(){
         );
 
 
-        try{
+        try {
 
           const response =
             await fetch(
               "/api/models",
               {
 
-                method:"POST",
+                method: "POST",
 
-                headers:{
+                headers: {
+
                   Authorization:
                     "Bearer " +
                     token
+
                 },
 
                 body:
@@ -945,7 +1688,7 @@ function openUpload(){
             await response.json();
 
 
-          if(!response.ok){
+          if (!response.ok) {
 
             message.textContent =
               data.error ||
@@ -966,19 +1709,45 @@ function openUpload(){
             "#159447";
 
 
-          setTimeout(() => {
+          /*
+            Add uploaded model
+            immediately to the page.
+          */
 
-            closeModal();
+          realModels.unshift({
 
-            /*
-              Reload models later
-              from the server.
-            */
+            ...data,
 
-          }, 800);
+            creator:
+              data.designerName ||
+              "Designer",
+
+            image:
+              data.imageUrl ||
+              "",
+
+            stats:
+              "0 ♥"
+
+          });
 
 
-        }catch(error){
+          setTimeout(
+            () => {
+
+              closeModal();
+
+              displayModels([
+                ...realModels,
+                ...models
+              ]);
+
+            },
+            700
+          );
+
+
+        } catch {
 
           message.textContent =
             "Server connection error.";
@@ -995,10 +1764,137 @@ function openUpload(){
 
 
 /* =========================
+   AUTH UI
+========================= */
+
+function updateAuthUI() {
+
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
+
+  const userString =
+    localStorage.getItem(
+      "user"
+    );
+
+
+  let user = null;
+
+
+  try {
+
+    user =
+      userString
+        ? JSON.parse(
+            userString
+          )
+        : null;
+
+  } catch {
+
+    user = null;
+
+  }
+
+
+  /*
+    Optional top login button
+  */
+
+  const loginTop =
+    document.getElementById(
+      "loginTop"
+    );
+
+
+  if (loginTop) {
+
+    if (token && user) {
+
+      loginTop.textContent =
+        user.name ||
+        "Profile";
+
+
+      loginTop.onclick =
+        () => {
+
+          window.location.href =
+            "/portfolio.html?username=" +
+            encodeURIComponent(
+              user.name
+            );
+
+        };
+
+    } else {
+
+      loginTop.textContent =
+        "Login";
+
+
+      loginTop.onclick =
+        login;
+
+    }
+
+  }
+
+
+  /*
+    Optional login sidebar button
+  */
+
+  const loginBtn =
+    document.getElementById(
+      "loginBtn"
+    );
+
+
+  if (loginBtn) {
+
+    if (token && user) {
+
+      loginBtn.textContent =
+        user.name ||
+        "Profile";
+
+
+      loginBtn.onclick =
+        () => {
+
+          window.location.href =
+            "/portfolio.html?username=" +
+            encodeURIComponent(
+              user.name
+            );
+
+        };
+
+    } else {
+
+      loginBtn.textContent =
+        "Login";
+
+
+      loginBtn.onclick =
+        login;
+
+    }
+
+  }
+
+}
+
+
+/* =========================
    MODAL CLOSE
 ========================= */
 
-function closeModal(){
+function closeModal() {
 
   const modal =
     document.getElementById(
@@ -1006,7 +1902,7 @@ function closeModal(){
     );
 
 
-  if(!modal){
+  if (!modal) {
     return;
   }
 
@@ -1018,19 +1914,26 @@ function closeModal(){
 }
 
 
+/* =========================
+   MODAL BACKDROP
+========================= */
+
 const modal =
   document.getElementById(
     "modal"
   );
 
 
-if(modal){
+if (modal) {
 
   modal.addEventListener(
     "click",
-    function(e){
+    event => {
 
-      if(e.target === this){
+      if (
+        event.target ===
+        modal
+      ) {
 
         closeModal();
 
@@ -1043,10 +1946,78 @@ if(modal){
 
 
 /* =========================
-   SCROLL
+   LOGIN BUTTONS
 ========================= */
 
-function scrollToModels(){
+const loginBtn =
+  document.getElementById(
+    "loginBtn"
+  );
+
+
+if (loginBtn) {
+
+  loginBtn.onclick =
+    login;
+
+}
+
+
+const loginTop =
+  document.getElementById(
+    "loginTop"
+  );
+
+
+if (loginTop) {
+
+  loginTop.onclick =
+    login;
+
+}
+
+
+/* =========================
+   SIGNUP BUTTON
+========================= */
+
+const signupTop =
+  document.getElementById(
+    "signupTop"
+  );
+
+
+if (signupTop) {
+
+  signupTop.onclick =
+    signup;
+
+}
+
+
+/* =========================
+   UPLOAD BUTTONS
+========================= */
+
+const uploadTop =
+  document.getElementById(
+    "uploadTop"
+  );
+
+
+if (uploadTop) {
+
+  uploadTop.onclick =
+    openUpload;
+
+}
+
+
+/* =========================
+   SCROLL TO MODELS
+========================= */
+
+function scrollToModels() {
 
   const modelsSection =
     document.getElementById(
@@ -1054,12 +2025,21 @@ function scrollToModels(){
     );
 
 
-  if(modelsSection){
+  if (modelsSection) {
 
     modelsSection.scrollIntoView({
-      behavior:"smooth"
+      behavior: "smooth"
     });
 
   }
 
 }
+
+
+/* =========================
+   START APP
+========================= */
+
+updateAuthUI();
+
+loadModels();
