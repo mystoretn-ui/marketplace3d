@@ -6,113 +6,196 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const SECRET = process.env.JWT_SECRET || "CHANGE_ME_BEFORE_PRODUCTION";
 
-const dataDir = path.join(__dirname, "data");
-const uploadDir = path.join(__dirname, "public", "uploads");
+const PORT =
+  process.env.PORT || 3000;
 
-fs.mkdirSync(dataDir, { recursive: true });
-fs.mkdirSync(uploadDir, { recursive: true });
+const SECRET =
+  process.env.JWT_SECRET ||
+  "CHANGE_ME_BEFORE_PRODUCTION";
 
-const dbFile = path.join(dataDir, "db.json");
+
+/* ================================
+   DIRECTORIES
+================================ */
+
+const dataDir =
+  path.join(__dirname, "data");
+
+const uploadDir =
+  path.join(
+    __dirname,
+    "public",
+    "uploads"
+  );
+
+fs.mkdirSync(
+  dataDir,
+  { recursive: true }
+);
+
+fs.mkdirSync(
+  uploadDir,
+  { recursive: true }
+);
+
+
+/* ================================
+   DATABASE
+================================ */
+
+const dbFile =
+  path.join(
+    dataDir,
+    "db.json"
+  );
+
 
 if (!fs.existsSync(dbFile)) {
+
   fs.writeFileSync(
     dbFile,
-    JSON.stringify({
-      users: [],
-      models: [],
-      purchases: []
-    }, null, 2)
+    JSON.stringify(
+      {
+        users: [],
+        models: [],
+        purchases: []
+      },
+      null,
+      2
+    )
   );
+
 }
+
 
 const readDB = () =>
   JSON.parse(
-    fs.readFileSync(dbFile, "utf8")
+    fs.readFileSync(
+      dbFile,
+      "utf8"
+    )
   );
+
 
 const writeDB = db =>
   fs.writeFileSync(
     dbFile,
-    JSON.stringify(db, null, 2)
+    JSON.stringify(
+      db,
+      null,
+      2
+    )
   );
+
 
 const makeId = () =>
   Date.now().toString(36) +
-  Math.random().toString(36).slice(2, 8);
+  Math.random()
+    .toString(36)
+    .slice(2, 8);
 
 
 /* ================================
    UPLOAD
 ================================ */
 
-const storage = multer.diskStorage({
+const storage =
+  multer.diskStorage({
 
-  destination: (_, __, cb) => {
-    cb(null, uploadDir);
-  },
+    destination: (
+      _,
+      __,
+      cb
+    ) => {
 
-  filename: (_, file, cb) => {
-
-    const safe =
-      file.originalname.replace(
-        /[^a-zA-Z0-9._-]/g,
-        "_"
+      cb(
+        null,
+        uploadDir
       );
 
-    cb(
-      null,
-      makeId() + "-" + safe
-    );
-
-  }
-
-});
+    },
 
 
-const upload = multer({
+    filename: (
+      _,
+      file,
+      cb
+    ) => {
 
-  storage,
+      const safe =
+        file.originalname.replace(
+          /[^a-zA-Z0-9._-]/g,
+          "_"
+        );
 
-  limits: {
-    fileSize: 100 * 1024 * 1024
-  },
 
-  fileFilter: (_, file, cb) => {
+      cb(
+        null,
+        makeId() +
+        "-" +
+        safe
+      );
 
-    const ext =
-      path.extname(
-        file.originalname
-      ).toLowerCase();
+    }
 
-    const allowed = [
-      ".stl",
-      ".3mf",
-      ".obj",
-      ".zip",
-      ".png",
-      ".jpg",
-      ".jpeg",
-      ".webp"
-    ];
+  });
 
-    cb(
-      null,
-      allowed.includes(ext)
-    );
 
-  }
+const upload =
+  multer({
 
-});
+    storage,
+
+    limits: {
+      fileSize:
+        100 * 1024 * 1024
+    },
+
+    fileFilter: (
+      _,
+      file,
+      cb
+    ) => {
+
+      const ext =
+        path.extname(
+          file.originalname
+        ).toLowerCase();
+
+
+      const allowed = [
+
+        ".stl",
+        ".3mf",
+        ".obj",
+        ".zip",
+
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".webp"
+
+      ];
+
+
+      cb(
+        null,
+        allowed.includes(ext)
+      );
+
+    }
+
+  });
 
 
 /* ================================
    APP
 ================================ */
 
-app.use(express.json());
+app.use(
+  express.json()
+);
 
 app.use(
   express.urlencoded({
@@ -122,7 +205,10 @@ app.use(
 
 app.use(
   express.static(
-    path.join(__dirname, "public")
+    path.join(
+      __dirname,
+      "public"
+    )
   )
 );
 
@@ -131,11 +217,21 @@ app.use(
    AUTH
 ================================ */
 
-function auth(req, res, next) {
+function auth(
+  req,
+  res,
+  next
+) {
 
   const token =
-    (req.headers.authorization || "")
-      .replace("Bearer ", "");
+    (
+      req.headers.authorization ||
+      ""
+    ).replace(
+      "Bearer ",
+      ""
+    );
+
 
   try {
 
@@ -145,13 +241,16 @@ function auth(req, res, next) {
         SECRET
       );
 
+
     next();
 
   } catch {
 
     res.status(401).json({
+
       error:
         "Authentication required."
+
     });
 
   }
@@ -163,445 +262,600 @@ function auth(req, res, next) {
    MODELS
 ================================ */
 
-app.get("/api/models", (req, res) => {
+app.get(
+  "/api/models",
+  (req, res) => {
 
-  const db = readDB();
+    const db =
+      readDB();
 
-  const q =
-    (req.query.q || "")
-      .toLowerCase();
 
-  const category =
-    (req.query.category || "")
-      .toLowerCase();
-
-  const models =
-    db.models.filter(m =>
-
+    const q =
       (
-        !q ||
-        `${m.title} ${m.description} ${m.category}`
-          .toLowerCase()
-          .includes(q)
+        req.query.q ||
+        ""
       )
+        .toLowerCase();
 
-      &&
 
+    const category =
       (
-        !category ||
-        m.category.toLowerCase() === category
+        req.query.category ||
+        ""
+      )
+        .toLowerCase();
+
+
+    const models =
+      db.models.filter(
+        model =>
+
+          (
+            !q ||
+
+            `${model.title} ${model.description} ${model.category}`
+              .toLowerCase()
+              .includes(q)
+          )
+
+          &&
+
+          (
+            !category ||
+
+            String(
+              model.category || ""
+            )
+              .toLowerCase()
+              === category
+          )
+
+      );
+
+
+    res.json(
+
+      models.sort(
+        (
+          a,
+          b
+        ) =>
+          new Date(
+            b.createdAt
+          ) -
+
+          new Date(
+            a.createdAt
+          )
       )
 
     );
-
-
-  res.json(
-    models.sort(
-      (a, b) =>
-        new Date(b.createdAt) -
-        new Date(a.createdAt)
-    )
-  );
-
-});
-
-
-app.get("/api/models/:id", (req, res) => {
-
-  const db = readDB();
-
-  const model =
-    db.models.find(
-      m => m.id === req.params.id
-    );
-
-  if (!model) {
-
-    return res.status(404).json({
-      error:
-        "Model not found."
-    });
 
   }
+);
 
-  res.json(model);
 
-});
+/* ================================
+   SINGLE MODEL
+================================ */
+
+app.get(
+  "/api/models/:id",
+  (req, res) => {
+
+    const db =
+      readDB();
+
+
+    const model =
+      db.models.find(
+        m =>
+          m.id ===
+          req.params.id
+      );
+
+
+    if (!model) {
+
+      return res
+        .status(404)
+        .json({
+
+          error:
+            "Model not found."
+
+        });
+
+    }
+
+
+    res.json(model);
+
+  }
+);
 
 
 /* ================================
    REGISTER
 ================================ */
 
-app.post("/api/register", async (req, res) => {
+app.post(
+  "/api/register",
+  async (
+    req,
+    res
+  ) => {
 
-  const {
-    name,
-    email,
-    password
-  } = req.body;
-
-
-  if (
-    !name ||
-    !email ||
-    !password ||
-    password.length < 6
-  ) {
-
-    return res.status(400).json({
-      error:
-        "Name, email and password (6+ chars) are required."
-    });
-
-  }
+    const {
+      name,
+      email,
+      password
+    } = req.body;
 
 
-  const db = readDB();
+    if (
+      !name ||
+      !email ||
+      !password ||
+      password.length < 6
+    ) {
 
-  const cleanEmail =
-    email
-      .toLowerCase()
-      .trim();
+      return res
+        .status(400)
+        .json({
 
-  const cleanName =
-    name.trim();
+          error:
+            "Name, email and password (6+ chars) are required."
 
+        });
 
-  if (
-    db.users.some(
-      u => u.email === cleanEmail
-    )
-  ) {
-
-    return res.status(409).json({
-      error:
-        "Email already registered."
-    });
-
-  }
+    }
 
 
-  /* ============================
-     USER
-  ============================ */
-
-  const userId = makeId();
+    const db =
+      readDB();
 
 
-  /* ============================
-     USERNAME
-  ============================ */
+    const cleanEmail =
+      String(email)
+        .toLowerCase()
+        .trim();
 
-  const baseUsername =
-    cleanName
-      .toLowerCase()
-      .replace(
-        /[^a-z0-9]+/g,
-        "-"
+
+    const cleanName =
+      String(name)
+        .trim();
+
+
+    if (
+      db.users.some(
+        user =>
+          user.email ===
+          cleanEmail
       )
-      .replace(
-        /^-|-$/g,
-        ""
-      );
+    ) {
+
+      return res
+        .status(409)
+        .json({
+
+          error:
+            "Email already registered."
+
+        });
+
+    }
 
 
-  const username =
-    (
-      baseUsername ||
-      "designer"
-    ) +
-    "-" +
-    userId.slice(-4);
+    /* ============================
+       USER ID
+    ============================ */
+
+    const userId =
+      makeId();
 
 
-  /* ============================
-     USER + PROFILE
-  ============================ */
+    /* ============================
+       USERNAME
+    ============================ */
 
-  const user = {
+    const baseUsername =
+      cleanName
+        .toLowerCase()
+        .replace(
+          /[^a-z0-9]+/g,
+          "-"
+        )
+        .replace(
+          /^-|-$/g,
+          ""
+        );
 
-    id: userId,
 
-    name: cleanName,
+    const username =
+      (
+        baseUsername ||
+        "designer"
+      ) +
+      "-" +
+      userId.slice(-4);
 
-    email: cleanEmail,
 
-    passwordHash:
-      await bcrypt.hash(
-        password,
-        10
-      ),
+    /* ============================
+       USER
+    ============================ */
 
-    role: "designer",
+    const user = {
 
-    profile: {
+      id:
+        userId,
 
-      username: username,
+      name:
+        cleanName,
 
-      bio: "",
+      email:
+        cleanEmail,
 
-      avatarUrl: "",
+      passwordHash:
+        await bcrypt.hash(
+          password,
+          10
+        ),
+
+      role:
+        "designer",
+
+      profile: {
+
+        username:
+          username,
+
+        bio:
+          "",
+
+        avatarUrl:
+          "",
+
+        createdAt:
+          new Date().toISOString()
+
+      },
 
       createdAt:
         new Date().toISOString()
 
-    },
-
-    createdAt:
-      new Date().toISOString()
-
-  };
+    };
 
 
-  db.users.push(user);
-
-  writeDB(db);
-
-
-  /* ============================
-     TOKEN
-  ============================ */
-
-  const token =
-    jwt.sign(
-      {
-        id: user.id,
-        name: user.name,
-        role: user.role
-      },
-      SECRET,
-      {
-        expiresIn: "7d"
-      }
+    db.users.push(
+      user
     );
 
 
-  res.json({
+    writeDB(db);
 
-    token,
 
-    user: {
+    /* ============================
+       TOKEN
+    ============================ */
 
-      id: user.id,
+    const token =
+      jwt.sign(
 
-      name: user.name,
+        {
+          id:
+            user.id,
 
-      email: user.email,
+          name:
+            user.name,
 
-      role: user.role,
+          role:
+            user.role
 
-      profile:
-        user.profile
+        },
 
-    }
+        SECRET,
 
-  });
+        {
+          expiresIn:
+            "7d"
+        }
 
-});
+      );
+
+
+    res.json({
+
+      token,
+
+      user: {
+
+        id:
+          user.id,
+
+        name:
+          user.name,
+
+        email:
+          user.email,
+
+        role:
+          user.role,
+
+        profile:
+          user.profile
+
+      }
+
+    });
+
+  }
+);
 
 
 /* ================================
    LOGIN
 ================================ */
 
-app.post("/api/login", async (req, res) => {
+app.post(
+  "/api/login",
+  async (
+    req,
+    res
+  ) => {
 
-  const {
-    email,
-    password
-  } = req.body;
-
-  const db = readDB();
-
-  const user =
-    db.users.find(
-      u =>
-        u.email ===
-        String(email || "")
-          .toLowerCase()
-          .trim()
-    );
+    const {
+      email,
+      password
+    } = req.body;
 
 
-  if (
-    !user ||
-    !(await bcrypt.compare(
-      password || "",
-      user.passwordHash
-    ))
-  ) {
-
-    return res.status(401).json({
-      error:
-        "Invalid email or password."
-    });
-
-  }
+    const db =
+      readDB();
 
 
-  /* ============================
-     OLD USERS SUPPORT
-  ============================ */
+    const user =
+      db.users.find(
+        u =>
+          u.email ===
 
-  if (!user.profile) {
+          String(
+            email || ""
+          )
+            .toLowerCase()
+            .trim()
+      );
 
-    const userId =
-      user.id;
 
-    const baseUsername =
-      String(user.name || "designer")
-        .toLowerCase()
-        .replace(
-          /[^a-z0-9]+/g,
-          "-"
+    if (
+      !user ||
+
+      !(
+        await bcrypt.compare(
+          password || "",
+          user.passwordHash
         )
-        .replace(
-          /^-|-$/g,
-          ""
-        );
+      )
+    ) {
 
+      return res
+        .status(401)
+        .json({
 
-    user.profile = {
+          error:
+            "Invalid email or password."
 
-      username:
-        (
-          baseUsername ||
-          "designer"
-        ) +
-        "-" +
-        userId.slice(-4),
-
-      bio: "",
-
-      avatarUrl: "",
-
-      createdAt:
-        new Date().toISOString()
-
-    };
-
-
-    writeDB(db);
-
-  }
-
-
-  const token =
-    jwt.sign(
-      {
-        id: user.id,
-        name: user.name,
-        role: user.role
-      },
-      SECRET,
-      {
-        expiresIn: "7d"
-      }
-    );
-
-
-  res.json({
-
-    token,
-
-    user: {
-
-      id: user.id,
-
-      name: user.name,
-
-      email: user.email,
-
-      role: user.role,
-
-      profile:
-        user.profile
+        });
 
     }
 
-  });
 
-});
+    /* ============================
+       OLD USERS SUPPORT
+    ============================ */
+
+    if (!user.profile) {
+
+      const baseUsername =
+        String(
+          user.name ||
+          "designer"
+        )
+          .toLowerCase()
+          .replace(
+            /[^a-z0-9]+/g,
+            "-"
+          )
+          .replace(
+            /^-|-$/g,
+            ""
+          );
+
+
+      user.profile = {
+
+        username:
+          (
+            baseUsername ||
+            "designer"
+          ) +
+          "-" +
+          user.id.slice(-4),
+
+        bio:
+          "",
+
+        avatarUrl:
+          "",
+
+        createdAt:
+          new Date().toISOString()
+
+      };
+
+
+      writeDB(db);
+
+    }
+
+
+    const token =
+      jwt.sign(
+
+        {
+          id:
+            user.id,
+
+          name:
+            user.name,
+
+          role:
+            user.role
+
+        },
+
+        SECRET,
+
+        {
+          expiresIn:
+            "7d"
+        }
+
+      );
+
+
+    res.json({
+
+      token,
+
+      user: {
+
+        id:
+          user.id,
+
+        name:
+          user.name,
+
+        email:
+          user.email,
+
+        role:
+          user.role,
+
+        profile:
+          user.profile
+
+      }
+
+    });
+
+  }
+);
 
 
 /* ================================
    CURRENT USER
 ================================ */
 
-app.get("/api/me", auth, (req, res) => {
+app.get(
+  "/api/me",
+  auth,
+  (
+    req,
+    res
+  ) => {
 
-  const db = readDB();
-
-  const user =
-    db.users.find(
-      u => u.id === req.user.id
-    );
-
-
-  if (!user) {
-    return res.json(null);
-  }
+    const db =
+      readDB();
 
 
-  /* OLD USERS */
-
-  if (!user.profile) {
-
-    const baseUsername =
-      String(user.name || "designer")
-        .toLowerCase()
-        .replace(
-          /[^a-z0-9]+/g,
-          "-"
-        )
-        .replace(
-          /^-|-$/g,
-          ""
-        );
+    const user =
+      db.users.find(
+        u =>
+          u.id ===
+          req.user.id
+      );
 
 
-    user.profile = {
+    if (!user) {
 
-      username:
-        (
-          baseUsername ||
+      return res.json(
+        null
+      );
+
+    }
+
+
+    /* ============================
+       OLD USERS SUPPORT
+    ============================ */
+
+    if (!user.profile) {
+
+      const baseUsername =
+        String(
+          user.name ||
           "designer"
-        ) +
-        "-" +
-        user.id.slice(-4),
-
-      bio: "",
-
-      avatarUrl: "",
-
-      createdAt:
-        new Date().toISOString()
-
-    };
+        )
+          .toLowerCase()
+          .replace(
+            /[^a-z0-9]+/g,
+            "-"
+          )
+          .replace(
+            /^-|-$/g,
+            ""
+          );
 
 
-    writeDB(db);
+      user.profile = {
+
+        username:
+          (
+            baseUsername ||
+            "designer"
+          ) +
+          "-" +
+          user.id.slice(-4),
+
+        bio:
+          "",
+
+        avatarUrl:
+          "",
+
+        createdAt:
+          new Date().toISOString()
+
+      };
+
+
+      writeDB(db);
+
+    }
+
+
+    res.json({
+
+      id:
+        user.id,
+
+      name:
+        user.name,
+
+      email:
+        user.email,
+
+      role:
+        user.role,
+
+      profile:
+        user.profile
+
+    });
 
   }
-
-
-  res.json({
-
-    id: user.id,
-
-    name: user.name,
-
-    email: user.email,
-
-    role: user.role,
-
-    profile:
-      user.profile
-
-  });
-
-});
+);
 
 
 /* ================================
@@ -610,36 +864,141 @@ app.get("/api/me", auth, (req, res) => {
 
 app.get(
   "/api/designers/:username",
-  (req, res) => {
+  (
+    req,
+    res
+  ) => {
 
-    const db = readDB();
+    const db =
+      readDB();
 
-    const username =
+
+    const requestedUsername =
       String(
-        req.params.username || ""
+        req.params.username ||
+        ""
       )
         .toLowerCase()
         .trim();
 
 
-    const designer =
+    /* ============================
+       FIND DESIGNER
+       
+       Accept:
+       1. Full profile username
+          example: meddd-a82f
+
+       2. Display name
+          example: meddd
+
+       3. Old users without profile
+    ============================ */
+
+    let designer =
       db.users.find(
-        u =>
-          u.profile &&
-          String(
-            u.profile.username || ""
-          )
-            .toLowerCase()
-            === username
+        user => {
+
+          const profileUsername =
+            String(
+              user.profile?.username ||
+              ""
+            )
+              .toLowerCase()
+              .trim();
+
+
+          const displayName =
+            String(
+              user.name ||
+              ""
+            )
+              .toLowerCase()
+              .trim();
+
+
+          return (
+
+            profileUsername ===
+            requestedUsername
+
+            ||
+
+            displayName ===
+            requestedUsername
+
+          );
+
+        }
       );
 
 
+    /* ============================
+       OLD USER SUPPORT
+    ============================ */
+
+    if (
+      designer &&
+      !designer.profile
+    ) {
+
+      const baseUsername =
+        String(
+          designer.name ||
+          "designer"
+        )
+          .toLowerCase()
+          .replace(
+            /[^a-z0-9]+/g,
+            "-"
+          )
+          .replace(
+            /^-|-$/g,
+            ""
+          );
+
+
+      designer.profile = {
+
+        username:
+          (
+            baseUsername ||
+            "designer"
+          ) +
+          "-" +
+          designer.id.slice(-4),
+
+        bio:
+          "",
+
+        avatarUrl:
+          "",
+
+        createdAt:
+          new Date().toISOString()
+
+      };
+
+
+      writeDB(db);
+
+    }
+
+
+    /* ============================
+       NOT FOUND
+    ============================ */
+
     if (!designer) {
 
-      return res.status(404).json({
-        error:
-          "Designer not found."
-      });
+      return res
+        .status(404)
+        .json({
+
+          error:
+            "Designer not found."
+
+        });
 
     }
 
@@ -650,8 +1009,8 @@ app.get(
 
     const models =
       db.models.filter(
-        m =>
-          m.designerId ===
+        model =>
+          model.designerId ===
           designer.id
       );
 
@@ -663,11 +1022,13 @@ app.get(
     const downloads =
       db.purchases.filter(
         purchase =>
+
           models.some(
             model =>
               model.id ===
               purchase.modelId
           )
+
       ).length;
 
 
@@ -697,10 +1058,20 @@ app.get(
       },
 
       models:
+
         models.sort(
-          (a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt)
+          (
+            a,
+            b
+          ) =>
+
+            new Date(
+              b.createdAt
+            ) -
+
+            new Date(
+              a.createdAt
+            )
         )
 
     });
@@ -716,34 +1087,55 @@ app.get(
 app.post(
   "/api/models",
   auth,
+
   upload.fields([
+
     {
-      name: "modelFile",
-      maxCount: 1
+      name:
+        "modelFile",
+
+      maxCount:
+        1
     },
+
     {
-      name: "image",
-      maxCount: 1
+      name:
+        "image",
+
+      maxCount:
+        1
     }
+
   ]),
-  (req, res) => {
+
+  (
+    req,
+    res
+  ) => {
 
     if (
       !req.files?.modelFile?.[0]
     ) {
 
-      return res.status(400).json({
-        error:
-          "3D file is required."
-      });
+      return res
+        .status(400)
+        .json({
+
+          error:
+            "3D file is required."
+
+        });
 
     }
 
 
-    const db = readDB();
+    const db =
+      readDB();
 
-    const f =
+
+    const file =
       req.files.modelFile[0];
+
 
     const image =
       req.files.image?.[0];
@@ -751,7 +1143,8 @@ app.post(
 
     const model = {
 
-      id: makeId(),
+      id:
+        makeId(),
 
       title:
         req.body.title ||
@@ -769,7 +1162,8 @@ app.post(
         Math.max(
           0,
           Number(
-            req.body.price || 0
+            req.body.price ||
+            0
           )
         ),
 
@@ -781,16 +1175,19 @@ app.post(
 
       fileUrl:
         "/uploads/" +
-        f.filename,
+        file.filename,
 
       imageUrl:
+
         image
+
           ? "/uploads/" +
             image.filename
+
           : "",
 
       originalFileName:
-        f.originalname,
+        file.originalname,
 
       createdAt:
         new Date().toISOString()
@@ -798,12 +1195,17 @@ app.post(
     };
 
 
-    db.models.push(model);
+    db.models.push(
+      model
+    );
+
 
     writeDB(db);
 
 
-    res.json(model);
+    res.json(
+      model
+    );
 
   }
 );
@@ -816,9 +1218,15 @@ app.post(
 app.post(
   "/api/purchase/:id",
   auth,
-  (req, res) => {
 
-    const db = readDB();
+  (
+    req,
+    res
+  ) => {
+
+    const db =
+      readDB();
+
 
     const model =
       db.models.find(
@@ -830,10 +1238,14 @@ app.post(
 
     if (!model) {
 
-      return res.status(404).json({
-        error:
-          "Model not found."
-      });
+      return res
+        .status(404)
+        .json({
+
+          error:
+            "Model not found."
+
+        });
 
     }
 
@@ -847,7 +1259,8 @@ app.post(
 
     const purchase = {
 
-      id: makeId(),
+      id:
+        makeId(),
 
       modelId:
         model.id,
@@ -867,6 +1280,7 @@ app.post(
     db.purchases.push(
       purchase
     );
+
 
     writeDB(db);
 
@@ -890,7 +1304,10 @@ app.post(
 
 app.get(
   "*",
-  (req, res) => {
+  (
+    req,
+    res
+  ) => {
 
     res.sendFile(
       path.join(
