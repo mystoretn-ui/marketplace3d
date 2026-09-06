@@ -343,7 +343,7 @@ app.get(
                 ""
               )
                 .toLowerCase() ===
-                category
+              category
             )
 
           );
@@ -495,6 +495,7 @@ app.post(
       role:
         "designer",
 
+
       /* PROFILE */
       profile: {
 
@@ -513,6 +514,7 @@ app.post(
           ""
 
       },
+
 
       createdAt:
         new Date()
@@ -735,7 +737,7 @@ app.get(
 
 
 /* =========================
-   DESIGNER PORTFOLIO
+   DESIGNER API
 ========================= */
 
 app.get(
@@ -941,6 +943,7 @@ app.post(
 
   ]),
 
+
   (req, res) => {
 
     if (
@@ -1059,6 +1062,7 @@ app.post(
 app.post(
   "/api/purchase/:id",
   auth,
+
   (req, res) => {
 
     const db =
@@ -1132,26 +1136,6 @@ app.post(
         model.fileUrl
 
     });
-
-  }
-);
-
-
-/* =========================
-   PORTFOLIO PAGE
-========================= */
-
-app.get(
-  "/portfolio.html",
-  (req, res) => {
-
-    res.sendFile(
-      path.join(
-        __dirname,
-        "public",
-        "portfolio.html"
-      )
-    );
 
   }
 );
