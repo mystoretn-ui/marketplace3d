@@ -97,6 +97,8 @@ const grid =
 
 function displayModels(list){
 
+  if(!grid) return;
+
   grid.innerHTML = "";
 
   if(list.length === 0){
@@ -145,7 +147,15 @@ function displayModels(list){
           ${model.title}
         </h3>
 
-        <div class="creator">
+        <div
+          class="creator"
+          onclick="event.stopPropagation(); openDesigner('${encodeURIComponent(model.creator)}')"
+          style="
+            cursor:pointer;
+            color:#079ed5;
+            font-weight:600;
+          "
+        >
           ${model.creator}
         </div>
 
@@ -166,13 +176,33 @@ function displayModels(list){
     `;
 
 
+    /* =========================
+       MODEL CLICK
+    ========================= */
+
     card.addEventListener("click", () => {
 
-      document.getElementById(
-        "modalContent"
-      ).innerHTML = `
+      const modalContent =
+        document.getElementById(
+          "modalContent"
+        );
 
-        <h2>${model.title}</h2>
+      const modal =
+        document.getElementById(
+          "modal"
+        );
+
+
+      if(!modalContent || !modal){
+        return;
+      }
+
+
+      modalContent.innerHTML = `
+
+        <h2>
+          ${model.title}
+        </h2>
 
         <img
           src="${model.image}"
@@ -186,11 +216,21 @@ function displayModels(list){
         >
 
         <p>
-          Created by <b>${model.creator}</b>
+          Created by
+          <b
+            onclick="openDesigner('${encodeURIComponent(model.creator)}')"
+            style="
+              color:#079ed5;
+              cursor:pointer;
+            "
+          >
+            ${model.creator}
+          </b>
         </p>
 
         <p>
-          This 3D model is available on Marketplace3D.
+          This 3D model is available
+          on Marketplace3D.
         </p>
 
         <button
@@ -202,9 +242,10 @@ function displayModels(list){
 
       `;
 
-      document
-        .getElementById("modal")
-        .classList.remove("hidden");
+
+      modal
+        .classList
+        .remove("hidden");
 
     });
 
@@ -220,46 +261,75 @@ displayModels(models);
 
 
 /* =========================
+   DESIGNER PORTFOLIO
+========================= */
+
+function openDesigner(username){
+
+  if(!username){
+    return;
+  }
+
+  window.location.href =
+    "/portfolio.html?username=" +
+    username;
+
+}
+
+
+/* =========================
    CATEGORY FILTER
 ========================= */
 
 const categories =
-  document.querySelectorAll(".category");
+  document.querySelectorAll(
+    ".category"
+  );
 
 
 categories.forEach(button => {
 
-  button.addEventListener("click", () => {
+  button.addEventListener(
+    "click",
+    () => {
 
-    categories.forEach(btn =>
-      btn.classList.remove("active")
-    );
-
-    button.classList.add("active");
-
-    const category =
-      button.dataset.category;
-
-
-    if(
-      category === "all" ||
-      category === "trending"
-    ){
-
-      displayModels(models);
-
-    }else{
-
-      displayModels(
-        models.filter(
-          model =>
-            model.category === category
+      categories.forEach(btn =>
+        btn.classList.remove(
+          "active"
         )
       );
 
-    }
 
-  });
+      button.classList.add(
+        "active"
+      );
+
+
+      const category =
+        button.dataset.category;
+
+
+      if(
+        category === "all" ||
+        category === "trending"
+      ){
+
+        displayModels(models);
+
+      }else{
+
+        displayModels(
+          models.filter(
+            model =>
+              model.category ===
+              category
+          )
+        );
+
+      }
+
+    }
+  );
 
 });
 
@@ -269,45 +339,51 @@ categories.forEach(button => {
 ========================= */
 
 const searchInput =
-  document.getElementById("searchInput");
+  document.getElementById(
+    "searchInput"
+  );
 
 
-searchInput.addEventListener(
-  "input",
-  () => {
+if(searchInput){
 
-    const value =
-      searchInput.value
-        .toLowerCase()
-        .trim();
+  searchInput.addEventListener(
+    "input",
+    () => {
 
-
-    const filtered =
-      models.filter(model =>
-
-        model.title
+      const value =
+        searchInput.value
           .toLowerCase()
-          .includes(value)
-
-        ||
-
-        model.creator
-          .toLowerCase()
-          .includes(value)
-
-        ||
-
-        model.category
-          .toLowerCase()
-          .includes(value)
-
-      );
+          .trim();
 
 
-    displayModels(filtered);
+      const filtered =
+        models.filter(model =>
 
-  }
-);
+          model.title
+            .toLowerCase()
+            .includes(value)
+
+          ||
+
+          model.creator
+            .toLowerCase()
+            .includes(value)
+
+          ||
+
+          model.category
+            .toLowerCase()
+            .includes(value)
+
+        );
+
+
+      displayModels(filtered);
+
+    }
+  );
+
+}
 
 
 /* =========================
@@ -316,14 +392,31 @@ searchInput.addEventListener(
 
 function login(){
 
-  document.getElementById(
-    "modalContent"
-  ).innerHTML = `
+  const modalContent =
+    document.getElementById(
+      "modalContent"
+    );
 
-    <h2>Login</h2>
+  const modal =
+    document.getElementById(
+      "modal"
+    );
+
+
+  if(!modalContent || !modal){
+    return;
+  }
+
+
+  modalContent.innerHTML = `
+
+    <h2>
+      Login
+    </h2>
 
     <p style="color:#777">
-      Login to your Marketplace3D account.
+      Login to your
+      Marketplace3D account.
     </p>
 
     <input
@@ -360,27 +453,43 @@ function login(){
   `;
 
 
-  document
-    .getElementById("modal")
-    .classList.remove("hidden");
+  modal
+    .classList
+    .remove("hidden");
 
 }
 
 
-document
-  .getElementById("loginBtn")
-  .addEventListener(
+const loginBtn =
+  document.getElementById(
+    "loginBtn"
+  );
+
+
+if(loginBtn){
+
+  loginBtn.addEventListener(
     "click",
     login
   );
 
+}
 
-document
-  .getElementById("loginTop")
-  .addEventListener(
+
+const loginTop =
+  document.getElementById(
+    "loginTop"
+  );
+
+
+if(loginTop){
+
+  loginTop.addEventListener(
     "click",
     login
   );
+
+}
 
 
 /* =========================
@@ -389,17 +498,35 @@ document
 
 function signup(){
 
-  document.getElementById(
-    "modalContent"
-  ).innerHTML = `
+  const modalContent =
+    document.getElementById(
+      "modalContent"
+    );
 
-    <h2>Create an account</h2>
+  const modal =
+    document.getElementById(
+      "modal"
+    );
+
+
+  if(!modalContent || !modal){
+    return;
+  }
+
+
+  modalContent.innerHTML = `
+
+    <h2>
+      Create an account
+    </h2>
 
     <p style="color:#777">
-      Join Marketplace3D and start sharing your designs.
+      Join Marketplace3D and
+      start sharing your designs.
     </p>
 
     <input
+      id="signupName"
       type="text"
       placeholder="Name / Username"
       style="
@@ -412,6 +539,7 @@ function signup(){
     >
 
     <input
+      id="signupEmail"
       type="email"
       placeholder="Email"
       style="
@@ -424,6 +552,7 @@ function signup(){
     >
 
     <input
+      id="signupPassword"
       type="password"
       placeholder="Password"
       style="
@@ -436,28 +565,193 @@ function signup(){
     >
 
     <button
+      id="createAccountBtn"
       class="uploadBtn"
       style="margin-top:10px"
     >
       Create Account
     </button>
 
+    <div
+      id="signupMessage"
+      style="
+        margin-top:12px;
+        font-size:13px;
+      "
+    ></div>
+
   `;
 
 
+  modal
+    .classList
+    .remove("hidden");
+
+
+  /* =========================
+     CREATE ACCOUNT
+  ========================= */
+
   document
-    .getElementById("modal")
-    .classList.remove("hidden");
+    .getElementById(
+      "createAccountBtn"
+    )
+    .addEventListener(
+      "click",
+      async () => {
+
+        const name =
+          document
+            .getElementById(
+              "signupName"
+            )
+            .value
+            .trim();
+
+
+        const email =
+          document
+            .getElementById(
+              "signupEmail"
+            )
+            .value
+            .trim();
+
+
+        const password =
+          document
+            .getElementById(
+              "signupPassword"
+            )
+            .value;
+
+
+        const message =
+          document
+            .getElementById(
+              "signupMessage"
+            );
+
+
+        if(
+          !name ||
+          !email ||
+          !password
+        ){
+
+          message.textContent =
+            "Please fill in all fields.";
+
+          message.style.color =
+            "#d33";
+
+          return;
+
+        }
+
+
+        try{
+
+          const response =
+            await fetch(
+              "/api/register",
+              {
+                method:"POST",
+
+                headers:{
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body:
+                  JSON.stringify({
+                    name,
+                    email,
+                    password
+                  })
+
+              }
+            );
+
+
+          const data =
+            await response.json();
+
+
+          if(!response.ok){
+
+            message.textContent =
+              data.error ||
+              "Registration failed.";
+
+            message.style.color =
+              "#d33";
+
+            return;
+
+          }
+
+
+          /* SAVE LOGIN */
+
+          localStorage.setItem(
+            "token",
+            data.token
+          );
+
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify(
+              data.user
+            )
+          );
+
+
+          message.textContent =
+            "Account created successfully!";
+
+          message.style.color =
+            "#159447";
+
+
+          setTimeout(() => {
+
+            closeModal();
+
+          }, 700);
+
+
+        }catch(error){
+
+          message.textContent =
+            "Server connection error.";
+
+          message.style.color =
+            "#d33";
+
+        }
+
+      }
+    );
 
 }
 
 
-document
-  .getElementById("signupTop")
-  .addEventListener(
+const signupTop =
+  document.getElementById(
+    "signupTop"
+  );
+
+
+if(signupTop){
+
+  signupTop.addEventListener(
     "click",
     signup
   );
+
+}
 
 
 /* =========================
@@ -466,17 +760,35 @@ document
 
 function openUpload(){
 
-  document.getElementById(
-    "modalContent"
-  ).innerHTML = `
+  const modalContent =
+    document.getElementById(
+      "modalContent"
+    );
 
-    <h2>Upload a 3D Model</h2>
+  const modal =
+    document.getElementById(
+      "modal"
+    );
+
+
+  if(!modalContent || !modal){
+    return;
+  }
+
+
+  modalContent.innerHTML = `
+
+    <h2>
+      Upload a 3D Model
+    </h2>
 
     <p style="color:#777">
-      Upload your STL, 3MF or OBJ file.
+      Upload your STL,
+      3MF or OBJ file.
     </p>
 
     <input
+      id="uploadTitle"
       type="text"
       placeholder="Model name"
       style="
@@ -489,6 +801,7 @@ function openUpload(){
     >
 
     <input
+      id="uploadFile"
       type="file"
       accept=".stl,.3mf,.obj"
       style="
@@ -499,18 +812,184 @@ function openUpload(){
     >
 
     <button
+      id="uploadModelBtn"
       class="uploadBtn"
       style="margin-top:10px"
     >
       Upload Model
     </button>
 
+    <div
+      id="uploadMessage"
+      style="
+        margin-top:12px;
+        font-size:13px;
+      "
+    ></div>
+
   `;
 
 
+  modal
+    .classList
+    .remove("hidden");
+
+
+  /* =========================
+     UPLOAD MODEL
+  ========================= */
+
   document
-    .getElementById("modal")
-    .classList.remove("hidden");
+    .getElementById(
+      "uploadModelBtn"
+    )
+    .addEventListener(
+      "click",
+      async () => {
+
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+
+        const title =
+          document
+            .getElementById(
+              "uploadTitle"
+            )
+            .value
+            .trim();
+
+
+        const file =
+          document
+            .getElementById(
+              "uploadFile"
+            )
+            .files[0];
+
+
+        const message =
+          document
+            .getElementById(
+              "uploadMessage"
+            );
+
+
+        if(!token){
+
+          message.textContent =
+            "Please login first.";
+
+          message.style.color =
+            "#d33";
+
+          return;
+
+        }
+
+
+        if(!title || !file){
+
+          message.textContent =
+            "Please enter a model name and select a file.";
+
+          message.style.color =
+            "#d33";
+
+          return;
+
+        }
+
+
+        const formData =
+          new FormData();
+
+
+        formData.append(
+          "title",
+          title
+        );
+
+
+        formData.append(
+          "modelFile",
+          file
+        );
+
+
+        try{
+
+          const response =
+            await fetch(
+              "/api/models",
+              {
+
+                method:"POST",
+
+                headers:{
+                  Authorization:
+                    "Bearer " +
+                    token
+                },
+
+                body:
+                  formData
+
+              }
+            );
+
+
+          const data =
+            await response.json();
+
+
+          if(!response.ok){
+
+            message.textContent =
+              data.error ||
+              "Upload failed.";
+
+            message.style.color =
+              "#d33";
+
+            return;
+
+          }
+
+
+          message.textContent =
+            "Model uploaded successfully!";
+
+          message.style.color =
+            "#159447";
+
+
+          setTimeout(() => {
+
+            closeModal();
+
+            /*
+              Reload models later
+              from the server.
+            */
+
+          }, 800);
+
+
+        }catch(error){
+
+          message.textContent =
+            "Server connection error.";
+
+          message.style.color =
+            "#d33";
+
+        }
+
+      }
+    );
 
 }
 
@@ -521,25 +1000,46 @@ function openUpload(){
 
 function closeModal(){
 
-  document
-    .getElementById("modal")
-    .classList.add("hidden");
+  const modal =
+    document.getElementById(
+      "modal"
+    );
+
+
+  if(!modal){
+    return;
+  }
+
+
+  modal
+    .classList
+    .add("hidden");
 
 }
 
 
-document
-  .getElementById("modal")
-  .addEventListener(
+const modal =
+  document.getElementById(
+    "modal"
+  );
+
+
+if(modal){
+
+  modal.addEventListener(
     "click",
     function(e){
 
       if(e.target === this){
+
         closeModal();
+
       }
 
     }
   );
+
+}
 
 
 /* =========================
@@ -548,10 +1048,18 @@ document
 
 function scrollToModels(){
 
-  document
-    .getElementById("models")
-    .scrollIntoView({
+  const modelsSection =
+    document.getElementById(
+      "models"
+    );
+
+
+  if(modelsSection){
+
+    modelsSection.scrollIntoView({
       behavior:"smooth"
     });
+
+  }
 
 }
