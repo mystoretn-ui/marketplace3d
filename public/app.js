@@ -1,16 +1,15 @@
 /* =========================
-   MARKETPLACE3D APP.JS
+   MARKETPLACE3D APP
 ========================= */
 
 
 /* =========================
-   DEMO MODELS
+   MODELS DATA
 ========================= */
 
 const models = [
 
   {
-    id: "demo-bmw",
     title: "BMW E39 Wide Body Kit",
     creator: "Car Accessories",
     category: "carparts",
@@ -21,7 +20,6 @@ const models = [
   },
 
   {
-    id: "demo-dashboard",
     title: "Sports Car Dashboard",
     creator: "AutoDesign",
     category: "carparts",
@@ -32,7 +30,6 @@ const models = [
   },
 
   {
-    id: "demo-phone",
     title: "Car Phone Holder",
     creator: "Maker Studio",
     category: "tools",
@@ -43,7 +40,6 @@ const models = [
   },
 
   {
-    id: "demo-gear",
     title: "Mechanical Gear Set",
     creator: "PrintLab",
     category: "tools",
@@ -54,7 +50,6 @@ const models = [
   },
 
   {
-    id: "demo-desk",
     title: "Modern Desk Organizer",
     creator: "Design3D",
     category: "home",
@@ -65,7 +60,6 @@ const models = [
   },
 
   {
-    id: "demo-racing",
     title: "Miniature Racing Car",
     creator: "MiniMaker",
     category: "miniatures",
@@ -76,7 +70,6 @@ const models = [
   },
 
   {
-    id: "demo-toolbox",
     title: "3D Printer Tool Box",
     creator: "PrintMaster",
     category: "printer",
@@ -87,7 +80,6 @@ const models = [
   },
 
   {
-    id: "demo-vase",
     title: "Decorative Geometric Vase",
     creator: "Creative3D",
     category: "home",
@@ -101,280 +93,31 @@ const models = [
 
 
 /* =========================
-   REAL MODELS
-========================= */
-
-let realModels = [];
-
-
-/* =========================
-   DOM
+   DISPLAY MODELS
 ========================= */
 
 const grid =
   document.getElementById("modelGrid");
 
 
-/* =========================
-   ESCAPE HTML
-========================= */
+function displayModels(list){
 
-function escapeHtml(value) {
-
-  return String(value || "")
-    .replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    }[char]));
-
-}
-
-
-/* =========================
-   GET ALL MODELS
-========================= */
-
-async function loadModels() {
-
-  try {
-
-    const response =
-      await fetch("/api/models");
-
-
-    if (!response.ok) {
-      throw new Error("Could not load models.");
-    }
-
-
-    const data =
-      await response.json();
-
-
-    if (Array.isArray(data)) {
-
-      realModels = data.map(model => ({
-
-        ...model,
-
-        creator:
-          model.designerName ||
-          model.creator ||
-          "Designer",
-
-        image:
-          model.imageUrl ||
-          model.image ||
-          "",
-
-        stats:
-          model.stats ||
-          "0 ♥"
-
-      }));
-
-    }
-
-
-    /*
-      Demo models remain visible.
-      Real uploaded models are added
-      to the marketplace.
-    */
-
-    const allModels = [
-      ...realModels,
-      ...models
-    ];
-
-
-    displayModels(allModels);
-
-
-  } catch(error) {
-
-    console.error(
-      "Models loading error:",
-      error
-    );
-
-
-    /*
-      If server is unavailable,
-      keep the demo models.
-    */
-
-    displayModels(models);
-
-  }
-
-}
-
-
-/* =========================
-   FIND DESIGNER USERNAME
-========================= */
-
-async function getDesignerUsername(
-  model
-) {
-
-  /*
-    If server model already contains
-    a username, use it directly.
-  */
-
-  if (model.username) {
-    return model.username;
-  }
-
-
-  if (model.designerUsername) {
-    return model.designerUsername;
-  }
-
-
-  /*
-    Some models only have designerId.
-    We ask the server for the user.
-  */
-
-  if (!model.designerId) {
-    return null;
-  }
-
-
-  try {
-
-    const response =
-      await fetch(
-        "/api/users/" +
-        encodeURIComponent(
-          model.designerId
-        )
-      );
-
-
-    if (!response.ok) {
-      return null;
-    }
-
-
-    const user =
-      await response.json();
-
-
-    return (
-      user?.profile?.username ||
-      user?.username ||
-      null
-    );
-
-
-  } catch {
-
-    return null;
-
-  }
-
-}
-
-
-/* =========================
-   OPEN DESIGNER
-========================= */
-
-async function openDesignerForModel(
-  model
-) {
-
-  /*
-    Real uploaded model
-  */
-
-  if (model.designerId) {
-
-    /*
-      First try username already
-      available in model.
-    */
-
-    let username =
-      model.designerUsername ||
-      model.username;
-
-
-    /*
-      If not available, use
-      designer name as fallback.
-    */
-
-    if (!username) {
-
-      username =
-        model.designerName ||
-        model.creator;
-
-    }
-
-
-    if (username) {
-
-      window.location.href =
-        "/portfolio.html?username=" +
-        encodeURIComponent(username);
-
-      return;
-
-    }
-
-  }
-
-
-  /*
-    Demo model:
-    no real account exists.
-  */
-
-  alert(
-    "This is a demo designer profile."
-  );
-
-}
-
-
-/* =========================
-   DISPLAY MODELS
-========================= */
-
-function displayModels(list) {
-
-  if (!grid) {
-    return;
-  }
-
+  if(!grid) return;
 
   grid.innerHTML = "";
 
 
-  if (!list.length) {
+  if(list.length === 0){
 
     grid.innerHTML = `
-
       <div style="
         grid-column:1/-1;
         padding:50px;
         text-align:center;
         color:#888;
       ">
-
         No models found.
-
       </div>
-
     `;
 
     return;
@@ -392,89 +135,15 @@ function displayModels(list) {
       "modelCard";
 
 
-    const image =
-      model.image ||
-      model.imageUrl ||
-      "";
-
-
-    const title =
-      model.title ||
-      "Untitled model";
-
-
-    const creator =
-      model.creator ||
-      model.designerName ||
-      "Designer";
-
-
-    const category =
-      model.category ||
-      "Other";
-
-
-    let price =
-      model.price;
-
-
-    if (
-      price === undefined ||
-      price === null ||
-      price === ""
-    ) {
-
-      price = "Free";
-
-    }
-
-
-    if (
-      typeof price === "number"
-    ) {
-
-      price =
-        price > 0
-          ? "$" + price.toFixed(2)
-          : "Free";
-
-    }
-
-
     card.innerHTML = `
 
       <div class="modelImage">
 
-        ${
-          image
-
-          ? `
-
-            <img
-              src="${escapeHtml(image)}"
-              alt="${escapeHtml(title)}"
-              loading="lazy"
-            >
-
-          `
-
-          : `
-
-            <div style="
-              width:100%;
-              height:100%;
-              display:flex;
-              align-items:center;
-              justify-content:center;
-              color:#999;
-              font-weight:700;
-            ">
-              3D MODEL
-            </div>
-
-          `
-        }
-
+        <img
+          src="${model.image}"
+          alt="${model.title}"
+          loading="lazy"
+        >
 
         <div class="modelBadge">
           3D
@@ -486,40 +155,27 @@ function displayModels(list) {
       <div class="modelBody">
 
         <h3>
-          ${escapeHtml(title)}
+          ${model.title}
         </h3>
 
 
         <div
           class="creator"
-          style="
-            cursor:pointer;
-            color:#079ed5;
-            font-weight:600;
-          "
+          onclick="event.stopPropagation(); openDesigner('${model.creator}')"
         >
-          ${escapeHtml(creator)}
+          ${model.creator}
         </div>
 
 
         <div class="modelBottom">
 
           <div class="stats">
-
-            ${
-              model.stats ||
-              "0 ♥"
-            }
-
+            ${model.stats}
           </div>
 
 
           <div class="price">
-
-            ${escapeHtml(
-              String(price)
-            )}
-
+            ${model.price}
           </div>
 
         </div>
@@ -529,43 +185,56 @@ function displayModels(list) {
     `;
 
 
-    /* =========================
-       CREATOR CLICK
-    ========================= */
-
-    const creatorElement =
-      card.querySelector(
-        ".creator"
-      );
-
-
-    if (creatorElement) {
-
-      creatorElement.addEventListener(
-        "click",
-        async event => {
-
-          event.stopPropagation();
-
-          await openDesignerForModel(
-            model
-          );
-
-        }
-      );
-
-    }
-
-
-    /* =========================
-       MODEL CLICK
-    ========================= */
-
     card.addEventListener(
       "click",
       () => {
 
-        openModelModal(model);
+        document.getElementById(
+          "modalContent"
+        ).innerHTML = `
+
+          <h2>
+            ${model.title}
+          </h2>
+
+
+          <img
+            src="${model.image}"
+            style="
+              width:100%;
+              height:260px;
+              object-fit:cover;
+              border-radius:10px;
+              margin:15px 0;
+            "
+          >
+
+
+          <p>
+            Created by
+            <b>${model.creator}</b>
+          </p>
+
+
+          <p>
+            This 3D model is available
+            on Marketplace3D.
+          </p>
+
+
+          <button
+            class="uploadBtn"
+            style="margin-top:10px"
+          >
+            Download Model
+          </button>
+
+        `;
+
+
+        document
+          .getElementById("modal")
+          .classList.remove("hidden");
 
       }
     );
@@ -578,260 +247,7 @@ function displayModels(list) {
 }
 
 
-/* =========================
-   MODEL MODAL
-========================= */
-
-function openModelModal(model) {
-
-  const modalContent =
-    document.getElementById(
-      "modalContent"
-    );
-
-
-  const modal =
-    document.getElementById(
-      "modal"
-    );
-
-
-  if (
-    !modalContent ||
-    !modal
-  ) {
-
-    return;
-
-  }
-
-
-  const image =
-    model.image ||
-    model.imageUrl ||
-    "";
-
-
-  const title =
-    model.title ||
-    "Untitled model";
-
-
-  const creator =
-    model.creator ||
-    model.designerName ||
-    "Designer";
-
-
-  modalContent.innerHTML = `
-
-    <h2>
-      ${escapeHtml(title)}
-    </h2>
-
-
-    ${
-      image
-
-      ? `
-
-        <img
-          src="${escapeHtml(image)}"
-          alt="${escapeHtml(title)}"
-          style="
-            width:100%;
-            height:260px;
-            object-fit:cover;
-            border-radius:10px;
-            margin:15px 0;
-          "
-        >
-
-      `
-
-      : ""
-
-    }
-
-
-    <p>
-
-      Created by
-
-      <b
-        id="modalDesigner"
-        style="
-          color:#079ed5;
-          cursor:pointer;
-        "
-      >
-        ${escapeHtml(creator)}
-      </b>
-
-    </p>
-
-
-    <p>
-      This 3D model is available
-      on Marketplace3D.
-    </p>
-
-
-    <button
-      id="downloadModelBtn"
-      class="uploadBtn"
-      style="margin-top:10px"
-    >
-      Download Model
-    </button>
-
-  `;
-
-
-  const designerButton =
-    document.getElementById(
-      "modalDesigner"
-    );
-
-
-  if (designerButton) {
-
-    designerButton.onclick =
-      async event => {
-
-        event.stopPropagation();
-
-        await openDesignerForModel(
-          model
-        );
-
-      };
-
-  }
-
-
-  const downloadButton =
-    document.getElementById(
-      "downloadModelBtn"
-    );
-
-
-  if (downloadButton) {
-
-    downloadButton.onclick =
-      () => {
-
-        downloadModel(model);
-
-      };
-
-  }
-
-
-  modal
-    .classList
-    .remove("hidden");
-
-}
-
-
-/* =========================
-   DOWNLOAD MODEL
-========================= */
-
-async function downloadModel(
-  model
-) {
-
-  const token =
-    localStorage.getItem(
-      "token"
-    );
-
-
-  /*
-    Demo model
-  */
-
-  if (!model.designerId) {
-
-    alert(
-      "This demo model cannot be downloaded yet."
-    );
-
-    return;
-
-  }
-
-
-  if (!token) {
-
-    alert(
-      "Please login before downloading."
-    );
-
-    return;
-
-  }
-
-
-  try {
-
-    const response =
-      await fetch(
-        "/api/purchase/" +
-        encodeURIComponent(
-          model.id
-        ),
-        {
-
-          method: "POST",
-
-          headers: {
-
-            Authorization:
-              "Bearer " +
-              token
-
-          }
-
-        }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    if (!response.ok) {
-
-      alert(
-        data.error ||
-        "Download failed."
-      );
-
-      return;
-
-    }
-
-
-    if (data.downloadUrl) {
-
-      window.location.href =
-        data.downloadUrl;
-
-    }
-
-
-  } catch {
-
-    alert(
-      "Server connection error."
-    );
-
-  }
-
-}
+displayModels(models);
 
 
 /* =========================
@@ -850,11 +266,10 @@ categories.forEach(button => {
     "click",
     () => {
 
-      categories.forEach(
-        btn =>
-          btn.classList.remove(
-            "active"
-          )
+      categories.forEach(btn =>
+        btn.classList.remove(
+          "active"
+        )
       );
 
 
@@ -867,49 +282,24 @@ categories.forEach(button => {
         button.dataset.category;
 
 
-      const allModels = [
-        ...realModels,
-        ...models
-      ];
-
-
-      if (
+      if(
         category === "all" ||
         category === "trending"
-      ) {
+      ){
+
+        displayModels(models);
+
+      }else{
 
         displayModels(
-          allModels
+          models.filter(
+            model =>
+              model.category ===
+              category
+          )
         );
 
-        return;
-
       }
-
-
-      displayModels(
-
-        allModels.filter(
-          model => {
-
-            const modelCategory =
-              String(
-                model.category ||
-                ""
-              ).toLowerCase();
-
-
-            return (
-              modelCategory ===
-              String(
-                category
-              ).toLowerCase()
-            );
-
-          }
-        )
-
-      );
 
     }
   );
@@ -927,7 +317,7 @@ const searchInput =
   );
 
 
-if (searchInput) {
+if(searchInput){
 
   searchInput.addEventListener(
     "input",
@@ -939,48 +329,25 @@ if (searchInput) {
           .trim();
 
 
-      const allModels = [
-        ...realModels,
-        ...models
-      ];
-
-
       const filtered =
-        allModels.filter(
-          model => {
+        models.filter(model =>
 
-            const title =
-              String(
-                model.title || ""
-              ).toLowerCase();
+          model.title
+            .toLowerCase()
+            .includes(value)
 
+          ||
 
-            const creator =
-              String(
-                model.creator ||
-                model.designerName ||
-                ""
-              ).toLowerCase();
+          model.creator
+            .toLowerCase()
+            .includes(value)
 
+          ||
 
-            const category =
-              String(
-                model.category ||
-                ""
-              ).toLowerCase();
+          model.category
+            .toLowerCase()
+            .includes(value)
 
-
-            return (
-
-              title.includes(value) ||
-
-              creator.includes(value) ||
-
-              category.includes(value)
-
-            );
-
-          }
         );
 
 
@@ -995,34 +362,34 @@ if (searchInput) {
 
 
 /* =========================
+   DESIGNER PORTFOLIO
+========================= */
+
+function openDesigner(
+  creator
+){
+
+  if(!creator) return;
+
+
+  window.location.href =
+    "/portfolio.html?username=" +
+    encodeURIComponent(
+      creator
+    );
+
+}
+
+
+/* =========================
    LOGIN
 ========================= */
 
-function login() {
+function login(){
 
-  const modalContent =
-    document.getElementById(
-      "modalContent"
-    );
-
-
-  const modal =
-    document.getElementById(
-      "modal"
-    );
-
-
-  if (
-    !modalContent ||
-    !modal
-  ) {
-
-    return;
-
-  }
-
-
-  modalContent.innerHTML = `
+  document.getElementById(
+    "modalContent"
+  ).innerHTML = `
 
     <h2>
       Login
@@ -1045,6 +412,7 @@ function login() {
         margin:8px 0;
         border:1px solid #ddd;
         border-radius:8px;
+        box-sizing:border-box;
       "
     >
 
@@ -1059,12 +427,13 @@ function login() {
         margin:8px 0;
         border:1px solid #ddd;
         border-radius:8px;
+        box-sizing:border-box;
       "
     >
 
 
     <button
-      id="doLoginBtn"
+      id="loginSubmit"
       class="uploadBtn"
       style="margin-top:10px"
     >
@@ -1072,192 +441,134 @@ function login() {
     </button>
 
 
-    <div
-      id="loginMessage"
+    <p
+      id="loginError"
       style="
-        margin-top:12px;
-        font-size:13px;
+        color:#d33;
+        margin-top:10px;
       "
-    ></div>
+    ></p>
 
   `;
 
 
-  modal
-    .classList
-    .remove("hidden");
+  document
+    .getElementById("modal")
+    .classList.remove(
+      "hidden"
+    );
 
 
   document
-    .getElementById(
-      "doLoginBtn"
-    )
-    .addEventListener(
-      "click",
-      async () => {
-
-        const email =
-          document
-            .getElementById(
-              "loginEmail"
-            )
-            .value
-            .trim();
-
-
-        const password =
-          document
-            .getElementById(
-              "loginPassword"
-            )
-            .value;
-
-
-        const message =
-          document
-            .getElementById(
-              "loginMessage"
-            );
-
-
-        if (
-          !email ||
-          !password
-        ) {
-
-          message.textContent =
-            "Please enter your email and password.";
-
-          message.style.color =
-            "#d33";
-
-          return;
-
-        }
-
-
-        try {
-
-          const response =
-            await fetch(
-              "/api/login",
-              {
-
-                method: "POST",
-
-                headers: {
-
-                  "Content-Type":
-                    "application/json"
-
-                },
-
-                body:
-                  JSON.stringify({
-                    email,
-                    password
-                  })
-
-              }
-            );
-
-
-          const data =
-            await response.json();
-
-
-          if (!response.ok) {
-
-            message.textContent =
-              data.error ||
-              "Invalid email or password.";
-
-            message.style.color =
-              "#d33";
-
-            return;
-
-          }
-
-
-          localStorage.setItem(
-            "token",
-            data.token
-          );
-
-
-          localStorage.setItem(
-            "user",
-            JSON.stringify(
-              data.user
-            )
-          );
-
-
-          message.textContent =
-            "Login successful!";
-
-          message.style.color =
-            "#159447";
-
-
-          setTimeout(
-            () => {
-
-              closeModal();
-
-              updateAuthUI();
-
-            },
-            500
-          );
-
-
-        } catch {
-
-          message.textContent =
-            "Server connection error.";
-
-          message.style.color =
-            "#d33";
-
-        }
-
-      }
-    );
+    .getElementById("loginSubmit")
+    .onclick =
+    submitLogin;
 
 }
 
 
-/* =========================
-   SIGN UP
-========================= */
+async function submitLogin(){
 
-function signup() {
-
-  const modalContent =
+  const email =
     document.getElementById(
-      "modalContent"
+      "loginEmail"
+    ).value.trim();
+
+
+  const password =
+    document.getElementById(
+      "loginPassword"
+    ).value;
+
+
+  const error =
+    document.getElementById(
+      "loginError"
     );
 
 
-  const modal =
-    document.getElementById(
-      "modal"
-    );
+  if(!email || !password){
 
-
-  if (
-    !modalContent ||
-    !modal
-  ) {
+    error.textContent =
+      "Please enter your email and password.";
 
     return;
 
   }
 
 
-  modalContent.innerHTML = `
+  try{
+
+    const response =
+      await fetch(
+        "/api/login",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:JSON.stringify({
+            email,
+            password
+          })
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        "Login failed."
+      );
+
+    }
+
+
+    localStorage.setItem(
+      "token",
+      data.token
+    );
+
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(
+        data.user
+      )
+    );
+
+
+    updateAuthUI();
+
+
+    closeModal();
+
+
+  }catch(err){
+
+    error.textContent =
+      err.message;
+
+  }
+
+}
+/* =========================
+   SIGN UP
+========================= */
+
+function signup(){
+
+  document.getElementById(
+    "modalContent"
+  ).innerHTML = `
 
     <h2>
       Create an account
@@ -1265,8 +576,8 @@ function signup() {
 
 
     <p style="color:#777">
-      Join Marketplace3D and
-      start sharing your designs.
+      Join Marketplace3D and start
+      sharing your designs.
     </p>
 
 
@@ -1280,6 +591,7 @@ function signup() {
         margin:8px 0;
         border:1px solid #ddd;
         border-radius:8px;
+        box-sizing:border-box;
       "
     >
 
@@ -1294,6 +606,7 @@ function signup() {
         margin:8px 0;
         border:1px solid #ddd;
         border-radius:8px;
+        box-sizing:border-box;
       "
     >
 
@@ -1308,12 +621,13 @@ function signup() {
         margin:8px 0;
         border:1px solid #ddd;
         border-radius:8px;
+        box-sizing:border-box;
       "
     >
 
 
     <button
-      id="createAccountBtn"
+      id="signupSubmit"
       class="uploadBtn"
       style="margin-top:10px"
     >
@@ -1321,444 +635,156 @@ function signup() {
     </button>
 
 
-    <div
-      id="signupMessage"
+    <p
+      id="signupError"
       style="
-        margin-top:12px;
-        font-size:13px;
+        color:#d33;
+        margin-top:10px;
       "
-    ></div>
+    ></p>
 
   `;
 
 
-  modal
-    .classList
-    .remove("hidden");
+  document
+    .getElementById("modal")
+    .classList.remove(
+      "hidden"
+    );
 
 
   document
-    .getElementById(
-      "createAccountBtn"
-    )
-    .addEventListener(
-      "click",
-      async () => {
-
-        const name =
-          document
-            .getElementById(
-              "signupName"
-            )
-            .value
-            .trim();
-
-
-        const email =
-          document
-            .getElementById(
-              "signupEmail"
-            )
-            .value
-            .trim();
-
-
-        const password =
-          document
-            .getElementById(
-              "signupPassword"
-            )
-            .value;
-
-
-        const message =
-          document
-            .getElementById(
-              "signupMessage"
-            );
-
-
-        if (
-          !name ||
-          !email ||
-          !password
-        ) {
-
-          message.textContent =
-            "Please fill in all fields.";
-
-          message.style.color =
-            "#d33";
-
-          return;
-
-        }
-
-
-        try {
-
-          const response =
-            await fetch(
-              "/api/register",
-              {
-
-                method: "POST",
-
-                headers: {
-
-                  "Content-Type":
-                    "application/json"
-
-                },
-
-                body:
-                  JSON.stringify({
-                    name,
-                    email,
-                    password
-                  })
-
-              }
-            );
-
-
-          const data =
-            await response.json();
-
-
-          if (!response.ok) {
-
-            message.textContent =
-              data.error ||
-              "Registration failed.";
-
-            message.style.color =
-              "#d33";
-
-            return;
-
-          }
-
-
-          localStorage.setItem(
-            "token",
-            data.token
-          );
-
-
-          localStorage.setItem(
-            "user",
-            JSON.stringify(
-              data.user
-            )
-          );
-
-
-          message.textContent =
-            "Account created successfully!";
-
-          message.style.color =
-            "#159447";
-
-
-          setTimeout(
-            () => {
-
-              closeModal();
-
-              updateAuthUI();
-
-            },
-            700
-          );
-
-
-        } catch {
-
-          message.textContent =
-            "Server connection error.";
-
-          message.style.color =
-            "#d33";
-
-        }
-
-      }
-    );
+    .getElementById("signupSubmit")
+    .onclick =
+    submitSignup;
 
 }
 
 
-/* =========================
-   UPLOAD
-========================= */
+async function submitSignup(){
 
-function openUpload() {
-
-  const modalContent =
+  const name =
     document.getElementById(
-      "modalContent"
+      "signupName"
+    ).value.trim();
+
+
+  const email =
+    document.getElementById(
+      "signupEmail"
+    ).value.trim();
+
+
+  const password =
+    document.getElementById(
+      "signupPassword"
+    ).value;
+
+
+  const error =
+    document.getElementById(
+      "signupError"
     );
 
 
-  const modal =
-    document.getElementById(
-      "modal"
-    );
+  if(
+    !name ||
+    !email ||
+    !password
+  ){
 
-
-  if (
-    !modalContent ||
-    !modal
-  ) {
+    error.textContent =
+      "Please complete all fields.";
 
     return;
 
   }
 
 
-  const token =
-    localStorage.getItem(
-      "token"
-    );
+  if(password.length < 6){
 
-
-  if (!token) {
-
-    login();
+    error.textContent =
+      "Password must contain at least 6 characters.";
 
     return;
 
   }
 
 
-  modalContent.innerHTML = `
+  try{
 
-    <h2>
-      Upload a 3D Model
-    </h2>
+    const response =
+      await fetch(
+        "/api/register",
+        {
+          method:"POST",
 
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
 
-    <p style="color:#777">
-      Upload your STL,
-      3MF or OBJ file.
-    </p>
-
-
-    <input
-      id="uploadTitle"
-      type="text"
-      placeholder="Model name"
-      style="
-        width:100%;
-        padding:12px;
-        margin:8px 0;
-        border:1px solid #ddd;
-        border-radius:8px;
-      "
-    >
-
-
-    <input
-      id="uploadFile"
-      type="file"
-      accept=".stl,.3mf,.obj"
-      style="
-        width:100%;
-        padding:12px;
-        margin:8px 0;
-      "
-    >
-
-
-    <button
-      id="uploadModelBtn"
-      class="uploadBtn"
-      style="margin-top:10px"
-    >
-      Upload Model
-    </button>
-
-
-    <div
-      id="uploadMessage"
-      style="
-        margin-top:12px;
-        font-size:13px;
-      "
-    ></div>
-
-  `;
-
-
-  modal
-    .classList
-    .remove("hidden");
-
-
-  document
-    .getElementById(
-      "uploadModelBtn"
-    )
-    .addEventListener(
-      "click",
-      async () => {
-
-        const title =
-          document
-            .getElementById(
-              "uploadTitle"
-            )
-            .value
-            .trim();
-
-
-        const file =
-          document
-            .getElementById(
-              "uploadFile"
-            )
-            .files[0];
-
-
-        const message =
-          document
-            .getElementById(
-              "uploadMessage"
-            );
-
-
-        if (
-          !title ||
-          !file
-        ) {
-
-          message.textContent =
-            "Please enter a model name and select a file.";
-
-          message.style.color =
-            "#d33";
-
-          return;
-
+          body:JSON.stringify({
+            name,
+            email,
+            password
+          })
         }
+      );
 
 
-        const formData =
-          new FormData();
+    const data =
+      await response.json();
 
 
-        formData.append(
-          "title",
-          title
-        );
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        "Registration failed."
+      );
+
+    }
 
 
-        formData.append(
-          "modelFile",
-          file
-        );
+    /*
+      SAVE LOGIN
+    */
 
-
-        try {
-
-          const response =
-            await fetch(
-              "/api/models",
-              {
-
-                method: "POST",
-
-                headers: {
-
-                  Authorization:
-                    "Bearer " +
-                    token
-
-                },
-
-                body:
-                  formData
-
-              }
-            );
-
-
-          const data =
-            await response.json();
-
-
-          if (!response.ok) {
-
-            message.textContent =
-              data.error ||
-              "Upload failed.";
-
-            message.style.color =
-              "#d33";
-
-            return;
-
-          }
-
-
-          message.textContent =
-            "Model uploaded successfully!";
-
-          message.style.color =
-            "#159447";
-
-
-          /*
-            Add uploaded model
-            immediately to the page.
-          */
-
-          realModels.unshift({
-
-            ...data,
-
-            creator:
-              data.designerName ||
-              "Designer",
-
-            image:
-              data.imageUrl ||
-              "",
-
-            stats:
-              "0 ♥"
-
-          });
-
-
-          setTimeout(
-            () => {
-
-              closeModal();
-
-              displayModels([
-                ...realModels,
-                ...models
-              ]);
-
-            },
-            700
-          );
-
-
-        } catch {
-
-          message.textContent =
-            "Server connection error.";
-
-          message.style.color =
-            "#d33";
-
-        }
-
-      }
+    localStorage.setItem(
+      "token",
+      data.token
     );
+
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(
+        data.user
+      )
+    );
+
+
+    /*
+      UPDATE PROFILE BUTTON
+    */
+
+    updateAuthUI();
+
+
+    /*
+      CLOSE MODAL
+    */
+
+    closeModal();
+
+
+  }catch(err){
+
+    error.textContent =
+      err.message;
+
+  }
 
 }
 
@@ -1767,7 +793,7 @@ function openUpload() {
    AUTH UI
 ========================= */
 
-function updateAuthUI() {
+function updateAuthUI(){
 
   const token =
     localStorage.getItem(
@@ -1784,7 +810,7 @@ function updateAuthUI() {
   let user = null;
 
 
-  try {
+  try{
 
     user =
       userString
@@ -1793,7 +819,7 @@ function updateAuthUI() {
           )
         : null;
 
-  } catch {
+  }catch{
 
     user = null;
 
@@ -1801,7 +827,18 @@ function updateAuthUI() {
 
 
   /*
-    Optional top login button
+    USERNAME FOR PORTFOLIO
+  */
+
+  const portfolioUsername =
+    user?.profile?.username ||
+    user?.username ||
+    user?.name ||
+    "";
+
+
+  /*
+    TOP LOGIN
   */
 
   const loginTop =
@@ -1810,13 +847,17 @@ function updateAuthUI() {
     );
 
 
-  if (loginTop) {
+  if(loginTop){
 
-    if (token && user) {
+    if(
+      token &&
+      user &&
+      portfolioUsername
+    ){
 
       loginTop.textContent =
         user.name ||
-        "Profile";
+        portfolioUsername;
 
 
       loginTop.onclick =
@@ -1825,12 +866,12 @@ function updateAuthUI() {
           window.location.href =
             "/portfolio.html?username=" +
             encodeURIComponent(
-              user.name
+              portfolioUsername
             );
 
         };
 
-    } else {
+    }else{
 
       loginTop.textContent =
         "Login";
@@ -1845,7 +886,7 @@ function updateAuthUI() {
 
 
   /*
-    Optional login sidebar button
+    SIDEBAR LOGIN
   */
 
   const loginBtn =
@@ -1854,13 +895,17 @@ function updateAuthUI() {
     );
 
 
-  if (loginBtn) {
+  if(loginBtn){
 
-    if (token && user) {
+    if(
+      token &&
+      user &&
+      portfolioUsername
+    ){
 
       loginBtn.textContent =
         user.name ||
-        "Profile";
+        portfolioUsername;
 
 
       loginBtn.onclick =
@@ -1869,12 +914,12 @@ function updateAuthUI() {
           window.location.href =
             "/portfolio.html?username=" +
             encodeURIComponent(
-              user.name
+              portfolioUsername
             );
 
         };
 
-    } else {
+    }else{
 
       loginBtn.textContent =
         "Login";
@@ -1884,6 +929,554 @@ function updateAuthUI() {
         login;
 
     }
+
+  }
+
+
+  /*
+    SIGN UP
+  */
+
+  const signupTop =
+    document.getElementById(
+      "signupTop"
+    );
+
+
+  if(signupTop){
+
+    if(
+      token &&
+      user
+    ){
+
+      signupTop.style.display =
+        "none";
+
+    }else{
+
+      signupTop.style.display =
+        "";
+
+      signupTop.onclick =
+        signup;
+
+    }
+
+  }
+
+
+  /*
+    NEW PROFILE BUTTON
+  */
+
+  const profileTop =
+    document.getElementById(
+      "profileTop"
+    );
+
+
+  if(profileTop){
+
+    if(
+      token &&
+      user &&
+      portfolioUsername
+    ){
+
+      profileTop.textContent =
+        user.name ||
+        portfolioUsername;
+
+
+      profileTop.style.display =
+        "inline-flex";
+
+
+      profileTop.style.cursor =
+        "pointer";
+
+
+      profileTop.onclick =
+        () => {
+
+          window.location.href =
+            "/portfolio.html?username=" +
+            encodeURIComponent(
+              portfolioUsername
+            );
+
+        };
+
+    }else{
+
+      profileTop.style.display =
+        "none";
+
+    }
+
+  }
+
+}
+/* =========================
+   UPLOAD
+========================= */
+
+function openUpload(){
+
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
+
+  if(!token){
+
+    login();
+
+    return;
+
+  }
+
+
+  document.getElementById(
+    "modalContent"
+  ).innerHTML = `
+
+    <h2>
+      Upload a 3D Model
+    </h2>
+
+
+    <p style="color:#777">
+      Upload your STL, 3MF or OBJ file.
+    </p>
+
+
+    <input
+      id="modelTitle"
+      type="text"
+      placeholder="Model name"
+      style="
+        width:100%;
+        padding:12px;
+        margin:8px 0;
+        border:1px solid #ddd;
+        border-radius:8px;
+        box-sizing:border-box;
+      "
+    >
+
+
+    <textarea
+      id="modelDescription"
+      placeholder="Description"
+      style="
+        width:100%;
+        min-height:100px;
+        padding:12px;
+        margin:8px 0;
+        border:1px solid #ddd;
+        border-radius:8px;
+        box-sizing:border-box;
+        resize:vertical;
+      "
+    ></textarea>
+
+
+    <select
+      id="modelCategory"
+      style="
+        width:100%;
+        padding:12px;
+        margin:8px 0;
+        border:1px solid #ddd;
+        border-radius:8px;
+        box-sizing:border-box;
+      "
+    >
+
+      <option value="home">
+        Home & Decor
+      </option>
+
+      <option value="carparts">
+        Car Parts
+      </option>
+
+      <option value="toys">
+        Toys & Games
+      </option>
+
+      <option value="tools">
+        Tools
+      </option>
+
+      <option value="diy">
+        Leisure & DIY
+      </option>
+
+      <option value="printer">
+        3D Printer
+      </option>
+
+      <option value="art">
+        Art
+      </option>
+
+      <option value="miniatures">
+        Miniatures
+      </option>
+
+    </select>
+
+
+    <input
+      id="modelPrice"
+      type="number"
+      min="0"
+      step="0.01"
+      placeholder="Price (0 = Free)"
+      style="
+        width:100%;
+        padding:12px;
+        margin:8px 0;
+        border:1px solid #ddd;
+        border-radius:8px;
+        box-sizing:border-box;
+      "
+    >
+
+
+    <label
+      style="
+        display:block;
+        margin:12px 0 5px;
+        font-weight:600;
+      "
+    >
+      3D Model
+    </label>
+
+
+    <input
+      id="modelFile"
+      type="file"
+      accept=".stl,.3mf,.obj,.zip"
+      style="
+        width:100%;
+        padding:8px 0;
+      "
+    >
+
+
+    <label
+      style="
+        display:block;
+        margin:12px 0 5px;
+        font-weight:600;
+      "
+    >
+      Preview Image
+    </label>
+
+
+    <input
+      id="modelImage"
+      type="file"
+      accept=".png,.jpg,.jpeg,.webp"
+      style="
+        width:100%;
+        padding:8px 0;
+      "
+    >
+
+
+    <button
+      id="uploadSubmit"
+      class="uploadBtn"
+      style="margin-top:15px"
+    >
+      Upload Model
+    </button>
+
+
+    <p
+      id="uploadError"
+      style="
+        color:#d33;
+        margin-top:10px;
+      "
+    ></p>
+
+  `;
+
+
+  document
+    .getElementById("modal")
+    .classList.remove(
+      "hidden"
+    );
+
+
+  document
+    .getElementById("uploadSubmit")
+    .onclick =
+    submitUpload;
+
+}
+
+
+/* =========================
+   SUBMIT UPLOAD
+========================= */
+
+async function submitUpload(){
+
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
+
+  const title =
+    document.getElementById(
+      "modelTitle"
+    ).value.trim();
+
+
+  const description =
+    document.getElementById(
+      "modelDescription"
+    ).value.trim();
+
+
+  const category =
+    document.getElementById(
+      "modelCategory"
+    ).value;
+
+
+  const price =
+    document.getElementById(
+      "modelPrice"
+    ).value;
+
+
+  const modelFile =
+    document.getElementById(
+      "modelFile"
+    ).files[0];
+
+
+  const imageFile =
+    document.getElementById(
+      "modelImage"
+    ).files[0];
+
+
+  const error =
+    document.getElementById(
+      "uploadError"
+    );
+
+
+  if(!title){
+
+    error.textContent =
+      "Please enter a model name.";
+
+    return;
+
+  }
+
+
+  if(!modelFile){
+
+    error.textContent =
+      "Please select a 3D model file.";
+
+    return;
+
+  }
+
+
+  const formData =
+    new FormData();
+
+
+  formData.append(
+    "title",
+    title
+  );
+
+
+  formData.append(
+    "description",
+    description
+  );
+
+
+  formData.append(
+    "category",
+    category
+  );
+
+
+  formData.append(
+    "price",
+    price || "0"
+  );
+
+
+  formData.append(
+    "modelFile",
+    modelFile
+  );
+
+
+  if(imageFile){
+
+    formData.append(
+      "image",
+      imageFile
+    );
+
+  }
+
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/models",
+        {
+          method:"POST",
+
+          headers:{
+            Authorization:
+              "Bearer " + token
+          },
+
+          body:formData
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        "Upload failed."
+      );
+
+    }
+
+
+    closeModal();
+
+
+    /*
+      Reload models
+    */
+
+    loadModelsFromServer();
+
+
+  }catch(err){
+
+    error.textContent =
+      err.message;
+
+  }
+
+}
+
+
+/* =========================
+   LOAD MODELS FROM SERVER
+========================= */
+
+async function loadModelsFromServer(){
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/models"
+      );
+
+
+    if(!response.ok){
+
+      return;
+
+    }
+
+
+    const serverModels =
+      await response.json();
+
+
+    if(
+      Array.isArray(
+        serverModels
+      ) &&
+      serverModels.length
+    ){
+
+      const converted =
+        serverModels.map(
+          model => ({
+
+            id:model.id,
+
+            title:
+              model.title,
+
+            creator:
+              model.designerName ||
+              "Designer",
+
+            category:
+              model.category,
+
+            price:
+              model.price > 0
+                ? "$" +
+                  Number(
+                    model.price
+                  ).toFixed(2)
+                : "Free",
+
+            stats:
+              "0 ♥",
+
+            image:
+              model.imageUrl ||
+              "https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=900&q=85"
+
+          })
+        );
+
+
+      displayModels(
+        converted
+      );
+
+    }
+
+
+  }catch(error){
+
+    console.error(
+      "Could not load server models:",
+      error
+    );
 
   }
 
@@ -1894,7 +1487,7 @@ function updateAuthUI() {
    MODAL CLOSE
 ========================= */
 
-function closeModal() {
+function closeModal(){
 
   const modal =
     document.getElementById(
@@ -1902,21 +1495,16 @@ function closeModal() {
     );
 
 
-  if (!modal) {
-    return;
+  if(modal){
+
+    modal.classList.add(
+      "hidden"
+    );
+
   }
-
-
-  modal
-    .classList
-    .add("hidden");
 
 }
 
-
-/* =========================
-   MODAL BACKDROP
-========================= */
 
 const modal =
   document.getElementById(
@@ -1924,16 +1512,13 @@ const modal =
   );
 
 
-if (modal) {
+if(modal){
 
   modal.addEventListener(
     "click",
-    event => {
+    function(e){
 
-      if (
-        event.target ===
-        modal
-      ) {
+      if(e.target === this){
 
         closeModal();
 
@@ -1946,19 +1531,42 @@ if (modal) {
 
 
 /* =========================
-   LOGIN BUTTONS
+   SCROLL
 ========================= */
 
-const loginBtn =
+function scrollToModels(){
+
+  const modelsSection =
+    document.getElementById(
+      "models"
+    );
+
+
+  if(modelsSection){
+
+    modelsSection.scrollIntoView({
+      behavior:"smooth"
+    });
+
+  }
+
+}
+
+
+/* =========================
+   AUTH BUTTONS
+========================= */
+
+const signupTop =
   document.getElementById(
-    "loginBtn"
+    "signupTop"
   );
 
 
-if (loginBtn) {
+if(signupTop){
 
-  loginBtn.onclick =
-    login;
+  signupTop.onclick =
+    signup;
 
 }
 
@@ -1969,7 +1577,7 @@ const loginTop =
   );
 
 
-if (loginTop) {
+if(loginTop){
 
   loginTop.onclick =
     login;
@@ -1978,68 +1586,14 @@ if (loginTop) {
 
 
 /* =========================
-   SIGNUP BUTTON
-========================= */
-
-const signupTop =
-  document.getElementById(
-    "signupTop"
-  );
-
-
-if (signupTop) {
-
-  signupTop.onclick =
-    signup;
-
-}
-
-
-/* =========================
-   UPLOAD BUTTONS
-========================= */
-
-const uploadTop =
-  document.getElementById(
-    "uploadTop"
-  );
-
-
-if (uploadTop) {
-
-  uploadTop.onclick =
-    openUpload;
-
-}
-
-
-/* =========================
-   SCROLL TO MODELS
-========================= */
-
-function scrollToModels() {
-
-  const modelsSection =
-    document.getElementById(
-      "models"
-    );
-
-
-  if (modelsSection) {
-
-    modelsSection.scrollIntoView({
-      behavior: "smooth"
-    });
-
-  }
-
-}
-
-
-/* =========================
-   START APP
+   INITIAL AUTH UI
 ========================= */
 
 updateAuthUI();
 
-loadModels();
+
+/* =========================
+   LOAD SERVER MODELS
+========================= */
+
+loadModelsFromServer();
