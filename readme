@@ -1,0 +1,27 @@
+Marketplace3D — Phase 1
+==========================
+Interface uniquement, inspirée de la structure MakerWorld montrée dans la conversation.
+
+Inclus:
+- Sidebar
+- Search
+- Categories
+- Hero
+- Explore Plus
+- Model cards
+- Trending / Popular / Creators
+- Responsive desktop/mobile
+- Recherche locale et boutons like visuels
+
+Pas encore inclus:
+- Login / Inscription
+- Portfolio / Profile
+- Upload
+- Database
+- Downloads réels
+- Followers / Collections / Comments
+
+Pour tester:
+1. Ouvrir index.html dans Chrome.
+2. Les images de démonstration utilisent des URLs externes.
+3. Pour Wix, le code devra ensuite être adapté à Wix/Velo et aux composants de la page.
