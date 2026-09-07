@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Marketplace 3D</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+  <a class="logo" href="/">MARKETPLACE<span>3D</span></a>
+  <nav>
+    <a href="#models">Modèles</a>
+    <a href="#sell">Vendre</a>
+    <button id="loginBtn">Connexion</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div>
+    <p class="eyebrow">3D PRINT • CREATE • SHARE</p>
+    <h1>Découvrez des modèles 3D prêts à imprimer.</h1>
+    <p>Une marketplace internationale pour acheter et partager des fichiers 3D.</p>
+    <a class="btn" href="#models">Explorer les modèles</a>
+  </div>
+</section>
+
+<section id="models" class="section">
+  <div class="sectionHead">
+    <div><p class="eyebrow">COLLECTION</p><h2>Modèles 3D</h2></div>
+    <input id="search" placeholder="Rechercher un modèle...">
+  </div>
+  <div id="grid" class="grid"></div>
+</section>
+
+<section id="sell" class="section sell">
+  <div>
+    <p class="eyebrow">DESIGNERS</p>
+    <h2>Publiez vos créations.</h2>
+    <p>Créez votre profil, ajoutez vos fichiers STL, 3MF ou OBJ et préparez votre catalogue.</p>
+  </div>
+  <button class="btn" onclick="openUpload()">Publier un modèle</button>
+</section>
+
+<div id="modal" class="modal hidden"><div class="modalBox">
+  <button class="close" onclick="closeModal()">×</button>
+  <div id="modalContent"></div>
+</div></div>
+
+<script src="/app.js"></script>
+</body>
+</html>
