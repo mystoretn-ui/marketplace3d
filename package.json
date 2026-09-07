@@ -1,0 +1,14 @@
+{
+  "name": "marketplace3d",
+  "version": "1.0.0",
+  "description": "Marketplace 3D full-stack marketplace with user portfolios",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "multer": "^2.0.2"
+  }
+}
