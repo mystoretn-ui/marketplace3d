@@ -1,0 +1,3 @@
+import Link from "next/link";
+import "../auth.css";
+export default function Login(){return <main className="auth"><div className="authbox"><Link href="/" className="logo">◈ Marketplace<span className="logo3d">3D</span></Link><h1>Welcome back</h1><p>Log in to your creator account.</p><input placeholder="Email" type="email"/><input placeholder="Password" type="password"/><button>Log in</button><span>Don't have an account? <Link href="/register">Sign up</Link></span></div></main>}
