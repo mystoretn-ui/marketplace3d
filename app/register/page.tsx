@@ -1,3 +1,0 @@
-import Link from "next/link";
-import "../auth.css";
-export default function Register(){return <main className="auth"><div className="authbox"><Link href="/" className="logo">◈ Marketplace<span className="logo3d">3D</span></Link><h1>Create your account</h1><p>Start building your 3D portfolio.</p><input placeholder="Username"/><input placeholder="Email" type="email"/><input placeholder="Password" type="password"/><button>Create account</button><span>Already registered? <Link href="/login">Log in</Link></span></div></main>}
